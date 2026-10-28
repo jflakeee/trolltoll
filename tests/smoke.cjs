@@ -40,4 +40,14 @@ frame(64);
 listeners.pagehide();
 const clamped=JSON.parse(storage.get('trolltoll_web_v2'));
 assert.ok(Math.hypot(clamped.x,clamped.y)<=300);
-console.log('Smoke test passed: boot, draw, touch, save, restore and region clamp');
+// Exercise a short mobile viewport and an expanded crafting menu.
+context.innerWidth=320;
+context.innerHeight=480;
+listeners.resize();
+canvasListeners.pointerdown({clientX:300,clientY:190,pointerId:2});
+frame(80);
+assert.equal(canvas.width,320);
+assert.equal(canvas.height,480);
+listeners.pagehide();
+assert.ok(storage.has('trolltoll_web_v2'));
+console.log('Smoke test passed: boot, draw, touch, save, restore, region clamp and short viewport');
