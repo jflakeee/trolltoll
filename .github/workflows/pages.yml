@@ -22,9 +22,9 @@ jobs:
         with:
           node-version: '22'
       - name: Check JavaScript syntax
-        run: node --check game.js && node --check tests/smoke.cjs
+        run: node --check game.js && node --check tests/smoke.cjs && node --check tests/progression.cjs
       - name: Run game smoke test
-        run: node tests/smoke.cjs
+        run: node tests/smoke.cjs && node tests/progression.cjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
