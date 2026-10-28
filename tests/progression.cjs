@@ -8,7 +8,7 @@ const store=new Map();
 const canvas={getContext:()=>canvasContext,addEventListener:()=>{},setPointerCapture:()=>{}};
 const listeners={};
 const context={document:{hidden:false,getElementById:()=>canvas,addEventListener:()=>{}},localStorage:{getItem:key=>store.get(key)||null,setItem:(key,value)=>store.set(key,value)},performance:{now:()=>0},innerWidth:390,innerHeight:740,devicePixelRatio:1,addEventListener:(key,fn)=>listeners[key]=fn,setInterval:()=>{},requestAnimationFrame:()=>{},console};
-const injection='\\n globalThis.__test={p,buttons,bosses,nodes,gain,zoneLimit,nextGoal,save};\\n})();';
+const injection=' globalThis.__test={p,buttons,bosses,nodes,gain,zoneLimit,nextGoal,save};})();';
 vm.runInNewContext(source.slice(0,-5)+injection,context,{filename:'game.js'});
 const {p,buttons,bosses,nodes,gain,zoneLimit,nextGoal,save}=context.__test;
 function craft(id){const b=buttons.find(item=>item.id===id);assert.ok(b,'missing '+id);assert.equal(b.show(),true,id+' visible');assert.equal(b.enabled(),true,id+' enabled');b.act();assert.equal(b.show(),false,id+' consumed');}
