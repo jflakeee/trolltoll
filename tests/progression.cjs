@@ -23,6 +23,10 @@ assert.equal(p.atk,16);assert.equal(p.def,9);
 assert.match(nextGoal(),/수호자/);
 const first=bosses[0];first.health=0;gain(first);
 assert.equal(zoneLimit(),540);assert.equal(p.relics,1);assert.ok(p.bossKills.includes('boss0'));
+// Existing players who already cleared the first boss must not be blocked by optional starter gear.
+p.club=false;p.armor=false;
+assert.match(nextGoal(),/제련소/);
+p.club=true;p.armor=true;
 craft('forge');
 assert.match(nextGoal(),/채석 거인/);
 const second=bosses[1];second.health=0;gain(second);
