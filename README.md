@@ -27,6 +27,7 @@ The GitHub Actions Pages workflow checks syntax and runs the headless smoke test
 
 - [ ] Test gameplay on real Android and iOS devices, including short landscape screens and browser safe areas.
 - [ ] Verify progression end-to-end from new save through all three bosses, including material costs, death and respawn.
+- [ ] Check mobile boss HP bar and crafting menu on 320px-wide devices after v4.4 placement fix.
 - [ ] Tune enemy and boss difficulty using playtest timings, resource collection speed and attack/defense scaling.
 - [ ] Improve navigation, enemy AI, combat feedback, item visuals and tutorial/onboarding.
 - [ ] Add accessibility controls and reduce motion option.
