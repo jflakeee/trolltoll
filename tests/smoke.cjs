@@ -22,4 +22,22 @@ const save=JSON.parse(storage.get('trolltoll_web_v2'));
 assert.equal(save.level,1);
 assert.equal(save.x,0);
 assert.ok(Array.isArray(save.bossKills));
-console.log('Smoke test passed: boot, draw, touch, save');
+// Rehydrate a late-game save and ensure the restored position is preserved.
+storage.set('trolltoll_web_v2',JSON.stringify({...save,x:500,y:0,bossKills:['boss0'],club:true,armor:true,atk:45,def:20}));
+vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'});
+frame(48);
+listeners.pagehide();
+const restored=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.equal(restored.x,500);
+assert.equal(restored.y,0);
+assert.deepEqual(restored.bossKills,['boss0']);
+assert.equal(restored.club,true);
+assert.equal(restored.armor,true);
+// Saves outside the currently unlocked zone must be clamped on load.
+storage.set('trolltoll_web_v2',JSON.stringify({...save,x:900,y:0,bossKills:[]}));
+vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'});
+frame(64);
+listeners.pagehide();
+const clamped=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.ok(Math.hypot(clamped.x,clamped.y)<=300);
+console.log('Smoke test passed: boot, draw, touch, save, restore and region clamp');
