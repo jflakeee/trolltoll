@@ -46,6 +46,17 @@ context.innerHeight=480;
 listeners.resize();
 canvasListeners.pointerdown({clientX:300,clientY:190,pointerId:2});
 frame(80);
+// Secondary fingers must not replace or release the active movement pointer.
+canvasListeners.pointerdown({clientX:100,clientY:300,pointerId:10});
+canvasListeners.pointermove({clientX:140,clientY:300,pointerId:10});
+canvasListeners.pointermove({clientX:310,clientY:300,pointerId:11});
+canvasListeners.pointerup({pointerId:11});
+frame(96);
+listeners.pagehide();
+const moving=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.ok(moving.x>0,'active pointer still moves after secondary pointer release');
+canvasListeners.pointerup({pointerId:10});
+frame(112);
 assert.equal(canvas.width,320);
 assert.equal(canvas.height,480);
 listeners.pagehide();
