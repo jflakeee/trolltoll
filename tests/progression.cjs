@@ -1,7 +1,7 @@
 const fs=require('node:fs');
 const vm=require('node:vm');
 const assert=require('node:assert/strict');
-const source=fs.readFileSync('game.js','utf8');
+const source=fs.readFileSync('game.js','utf8').trimEnd();
 assert.ok(source.endsWith('})();'));
 const canvasContext=new Proxy({}, {get:(target,key)=>target[key]||(()=>{}),set:(target,key,value)=>(target[key]=value,true)});
 const store=new Map();
