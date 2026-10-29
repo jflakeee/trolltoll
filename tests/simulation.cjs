@@ -16,6 +16,15 @@ const before=p.wood;
 for(let i=0;i<50;i++)update(.05);
 assert.ok(p.wood>before,'automatic gathering should produce wood');
 assert.ok(tree.stock<3,'gathering should consume node stock');
+// Respawned enemies must remain within the player's unlocked region, even at the boundary.
+p.x=295;p.y=0;
+const respawn=enemies.find(e=>!e.boss);
+respawn.dead=.01;respawn.health=0;
+update(.05);
+assert.ok(Math.hypot(respawn.x,respawn.y)<=300,'respawned enemy should be reachable');
+assert.equal(respawn.health,respawn.hp);
+p.x=tree.x;p.y=tree.y;
+for(const e of enemies)e.dead=999;
 // A nearby weak enemy should take damage and eventually grant kill rewards.
 const enemy=enemies.find(e=>!e.boss);
 enemy.dead=0;enemy.health=enemy.hp;enemy.x=p.x+20;enemy.y=p.y;enemy.atk=0;
