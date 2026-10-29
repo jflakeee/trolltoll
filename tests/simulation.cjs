@@ -82,6 +82,19 @@ p.hp=Math.max(1,p.max-30);
 for(let i=0;i<2000;i++)update(.05);
 assert.ok(p.hp<=p.max);
 assert.ok(p.hp>p.max-30);
+// A boss defeated through the real auto-attack loop must unlock the next region.
+for(const e of enemies)e.dead=999;
+for(const n of nodes)n.respawn=999;
+const guardian=bosses[0];
+guardian.dead=0;guardian.health=guardian.hp;guardian.cd=999;guardian.windup=0;
+p.x=guardian.x+20;p.y=guardian.y;
+const priorAttack=p.atk,priorDefense=p.def;
+p.atk=120;p.def=100;
+for(let i=0;i<120&&!p.bossKills.includes('boss0');i++)update(.05);
+assert.ok(p.bossKills.includes('boss0'),'real auto-combat must unlock quarry');
+assert.ok(p.relics>=1,'first guardian kill should grant a relic');
+assert.ok(guardian.dead>0,'guardian should enter defeat cooldown');
+p.atk=priorAttack+5;p.def=priorDefense+3;
 // Long-running idle updates must not create invalid or unbounded game state.
 for(const e of enemies)e.dead=999;
 for(const n of nodes)n.respawn=999;
