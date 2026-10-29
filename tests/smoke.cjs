@@ -79,4 +79,13 @@ assert.equal(sanitized.iron,0);
 assert.equal(sanitized.hp,1);
 assert.equal(sanitized.currentHp,1);
 assert.deepEqual(sanitized.bossKills,['boss0']);
+// Invalid top-level save shapes must never crash game initialization.
+for(const invalid of ['null','[]','42','\"broken\"','{not-json']){
+  storage.set('trolltoll_web_v2',invalid);
+  assert.doesNotThrow(()=>vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'}));
+  frame(144);
+  listeners.pagehide();
+  const recovered=JSON.parse(storage.get('trolltoll_web_v2'));
+  assert.equal(recovered.level,1);
+}
 console.log('Smoke test passed: boot, draw, touch, save, restore, short viewport and corrupted save recovery');
