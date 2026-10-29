@@ -79,6 +79,16 @@ assert.equal(sanitized.iron,0);
 assert.equal(sanitized.hp,1);
 assert.equal(sanitized.currentHp,1);
 assert.deepEqual(sanitized.bossKills,['boss0']);
+// Keyboard movement must stop after the browser loses focus.
+context.innerWidth=390;context.innerHeight=740;listeners.resize();
+listeners.keydown({key:'d',preventDefault:()=>{}});
+frame(136);
+listeners.pagehide();
+const beforeBlur=JSON.parse(storage.get('trolltoll_web_v2')).x;
+listeners.blur();
+frame(152);
+listeners.pagehide();
+assert.equal(JSON.parse(storage.get('trolltoll_web_v2')).x,beforeBlur,'blur releases held keyboard input');
 // Invalid top-level save shapes must never crash game initialization.
 for(const invalid of ['null','[]','42','\"broken\"','{not-json']){
   storage.set('trolltoll_web_v2',invalid);
