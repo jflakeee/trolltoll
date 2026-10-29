@@ -27,6 +27,15 @@ stone.stock=0;stone.respawn=.05;
 update(.05);
 assert.equal(stone.stock,2,'stone nodes should regenerate full stock');
 assert.ok(stone.respawn<=0,'regenerated stone should be available again');
+// Once a depleted tree respawns, auto-gathering should resume without user input.
+for(const e of enemies)e.dead=999;
+for(const n of nodes)if(n!==tree)n.respawn=999;
+tree.stock=0;tree.respawn=.05;
+p.x=tree.x;p.y=tree.y;
+const woodBeforeResume=p.wood;
+for(let i=0;i<50;i++)update(.05);
+assert.ok(p.wood>woodBeforeResume,'auto-gather should resume after tree respawn');
+for(const n of nodes)if(n!==tree)n.respawn=0;
 // Respawned enemies must remain within the player's unlocked region, even at the boundary.
 p.x=295;p.y=0;
 const respawn=enemies.find(e=>!e.boss);
