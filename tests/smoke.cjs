@@ -13,6 +13,7 @@ const context = {document,localStorage,innerWidth:390,innerHeight:740,devicePixe
 vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'});
 assert.equal(typeof frame,'function');
 frame(16);
+frame(-1000); // A clock reset must not reverse game simulation.
 assert.ok(canvas.width>0&&canvas.height>0);
 assert.equal(typeof canvasListeners.pointerdown,'function');
 canvasListeners.pointerdown({clientX:35,clientY:25,pointerId:1});
