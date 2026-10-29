@@ -25,6 +25,8 @@ assert.ok(Math.hypot(respawn.x,respawn.y)<=300,'respawned enemy should be reacha
 assert.ok(respawn.health>0&&respawn.health<=respawn.hp,'respawned enemy should be alive, even if auto-attacked immediately');
 p.x=tree.x;p.y=tree.y;
 for(const e of enemies)e.dead=999;
+// Keep resource nodes out of interaction range so the test isolates combat.
+p.x=0;p.y=0;
 // A nearby weak enemy should take damage and eventually grant kill rewards.
 const enemy=enemies.find(e=>!e.boss);
 enemy.dead=0;enemy.health=enemy.hp;enemy.x=p.x+20;enemy.y=p.y;enemy.atk=0;
