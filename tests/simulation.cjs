@@ -82,6 +82,17 @@ p.hp=Math.max(1,p.max-30);
 for(let i=0;i<2000;i++)update(.05);
 assert.ok(p.hp<=p.max);
 assert.ok(p.hp>p.max-30);
+// Long-running idle updates must not create invalid or unbounded game state.
+for(const e of enemies)e.dead=999;
+for(const n of nodes)n.respawn=999;
+p.x=0;p.y=0;
+for(let i=0;i<12000;i++)update(.05);
+for(const key of ['x','y','hp','max','atk','def','wood','stone','iron','gold','xp']){
+  assert.ok(Number.isFinite(p[key]),key+' should remain finite during long idle simulation');
+}
+assert.ok(p.hp>0&&p.hp<=p.max,'health remains within valid bounds');
+assert.ok(Math.hypot(p.x,p.y)<=300,'player remains in unlocked area');
+for(const e of enemies){assert.ok(Number.isFinite(e.dead),'enemy respawn timers stay finite')}
 save();
 assert.ok(JSON.parse(store.get('trolltoll_web_v2')).kills>0);
 console.log('Simulation passed: gathering, combat rewards and boss range');
