@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),KEY='trolltoll_web_v2';
-let old={};try{old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('trolltoll_web_v1')||'{}')}catch{}
+let old={};try{old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('trolltoll_web_v1')||'{}');if(!old||typeof old!=='object'||Array.isArray(old))old={}}catch{old={}}
 const num=(x,d)=>x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))?Number(x):d;const positive=(x,d)=>Math.max(1,num(x,d));const count=(x,d=0)=>Math.max(0,Math.floor(num(x,d)));
 const p={x:num(old.x,0),y:num(old.y,0),level:count(old.level,1)||1,xp:count(old.xp),atk:positive(old.atk,10),def:count(old.def,5),max:positive(old.hp,100),hp:positive(old.currentHp,positive(old.hp,100)),kills:count(old.kills),gold:count(old.gold),wood:count(old.wood),stone:count(old.stone),iron:count(old.iron),workbench:!!old.workbench,forge:!!old.forge,pick:!!old.pick,axe:!!old.axe,blade:!!old.blade,club:!!old.club,armor:!!old.armor,relics:count(old.relics),relicBlade:!!old.relicBlade,bossKills:Array.isArray(old.bossKills)?[...new Set(old.bossKills.filter(id=>['boss0','boss1','boss2'].includes(id)))]:[],cd:0,action:0,target:-1};
 let w=0,h=0,last=performance.now(),regen=0,touch=null,notice='',noticeTimer=0,hitTimer=0,selected=null,work=null,mode='auto',craftOpen=false,craftPage=0,hudCompact=false,fx=[],bursts=[],lastZone='초원',gateNoticeCooldown=0;
