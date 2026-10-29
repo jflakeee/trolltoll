@@ -57,8 +57,8 @@ assert.ok(enemy.dead>0,'defeated enemy should enter respawn cooldown');
 // Auto-combat should resume when a defeated enemy respawns nearby.
 for(const e of enemies)e.dead=999;
 for(const n of nodes)n.respawn=999;
-p.x=0;p.y=0;
-enemy.dead=.05;enemy.health=0;enemy.atk=0;
+p.x=295;p.y=0;
+enemy.i=0;enemy.dead=.05;enemy.health=0;enemy.atk=0;
 const killsBeforeRespawn=p.kills;
 for(let i=0;i<180;i++)update(.05);
 assert.ok(p.kills>killsBeforeRespawn,'auto-combat should defeat a respawned enemy');
