@@ -22,7 +22,7 @@ const respawn=enemies.find(e=>!e.boss);
 respawn.dead=.01;respawn.health=0;
 update(.05);
 assert.ok(Math.hypot(respawn.x,respawn.y)<=300,'respawned enemy should be reachable');
-assert.equal(respawn.health,respawn.hp);
+assert.ok(respawn.health>0&&respawn.health<=respawn.hp,'respawned enemy should be alive, even if auto-attacked immediately');
 p.x=tree.x;p.y=tree.y;
 for(const e of enemies)e.dead=999;
 // A nearby weak enemy should take damage and eventually grant kill rewards.
