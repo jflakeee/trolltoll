@@ -61,4 +61,17 @@ assert.equal(canvas.width,320);
 assert.equal(canvas.height,480);
 listeners.pagehide();
 assert.ok(storage.has('trolltoll_web_v2'));
-console.log('Smoke test passed: boot, draw, touch, save, restore, region clamp and short viewport');
+// Corrupt saves must not produce negative resources, invalid boss IDs or impossible HP.
+storage.set('trolltoll_web_v2',JSON.stringify({...save,level:-10,wood:-5,stone:-1,iron:-9,hp:0,currentHp:9999,bossKills:['boss0','boss0','unknown']}));
+vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'});
+frame(128);
+listeners.pagehide();
+const sanitized=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.equal(sanitized.level,1);
+assert.equal(sanitized.wood,0);
+assert.equal(sanitized.stone,0);
+assert.equal(sanitized.iron,0);
+assert.equal(sanitized.hp,1);
+assert.equal(sanitized.currentHp,1);
+assert.deepEqual(sanitized.bossKills,['boss0']);
+console.log('Smoke test passed: boot, draw, touch, save, restore, short viewport and corrupted save recovery');
