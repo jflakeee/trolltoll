@@ -30,6 +30,18 @@ p.x=boss.x+250;p.y=boss.y;
 const hp=p.hp;
 update(.05);
 assert.equal(p.hp,hp,'out-of-range boss strike should miss');
+// Dead enemies must respawn with full health and no stale attack windup.
+boss.dead=.05;boss.health=1;boss.windup=.8;boss.cd=-1;
+update(.05);
+assert.equal(boss.health,boss.hp);
+assert.equal(boss.windup,0);
+assert.equal(boss.cd,2);
+// Healing should remain bounded after sustained idle simulation.
+for(const e of enemies)e.dead=999;
+p.hp=Math.max(1,p.max-30);
+for(let i=0;i<2000;i++)update(.05);
+assert.ok(p.hp<=p.max);
+assert.ok(p.hp>p.max-30);
 save();
 assert.ok(JSON.parse(store.get('trolltoll_web_v2')).kills>0);
 console.log('Simulation passed: gathering, combat rewards and boss range');
