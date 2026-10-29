@@ -16,6 +16,17 @@ const before=p.wood;
 for(let i=0;i<50;i++)update(.05);
 assert.ok(p.wood>before,'automatic gathering should produce wood');
 assert.ok(tree.stock<3,'gathering should consume node stock');
+// Exhausted resource nodes should regenerate their full stock after cooldown.
+tree.stock=0;tree.respawn=.05;
+p.x=0;p.y=0;
+update(.05);
+assert.equal(tree.stock,3,'trees should regenerate full stock');
+assert.ok(tree.respawn<=0,'regenerated trees should be available again');
+const stone=nodes.find(n=>n.kind==='stone');
+stone.stock=0;stone.respawn=.05;
+update(.05);
+assert.equal(stone.stock,2,'stone nodes should regenerate full stock');
+assert.ok(stone.respawn<=0,'regenerated stone should be available again');
 // Respawned enemies must remain within the player's unlocked region, even at the boundary.
 p.x=295;p.y=0;
 const respawn=enemies.find(e=>!e.boss);
