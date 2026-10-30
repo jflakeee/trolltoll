@@ -46,7 +46,7 @@ const defBeforeRepeat=p.def;
 third.health=0;gain(third);
 assert.equal(p.bossKills.length,3,'repeat kills must not duplicate boss completion');
 assert.equal(p.relics,relicsBeforeRepeat,'repeat kills must not grant extra relics');
-assert.equal(p.max,maxBeforeRepeat,'repeat kills must not grant first-clear HP bonus');
+assert.ok(p.max>=maxBeforeRepeat&&p.max<maxBeforeRepeat+20,'repeat kills may level up but must not grant first-clear HP bonus');
 assert.equal(p.atk,atkBeforeRepeat+1,'repeat kills should retain ordinary enemy stat rewards');
 assert.equal(p.def,defBeforeRepeat,'repeat kills must not grant first-clear defense bonus');
 save();
