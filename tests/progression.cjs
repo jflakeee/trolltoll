@@ -38,6 +38,17 @@ assert.equal(p.relics,0);
 const third=bosses[2];third.health=0;gain(third);
 assert.equal(p.bossKills.length,3);
 assert.match(nextGoal(),/전 지역 해금 완료/);
+// Repeat boss kills should grant ordinary combat rewards, not duplicate relics or unlocks.
+const relicsBeforeRepeat=p.relics;
+const maxBeforeRepeat=p.max;
+const atkBeforeRepeat=p.atk;
+const defBeforeRepeat=p.def;
+third.health=0;gain(third);
+assert.equal(p.bossKills.length,3,'repeat kills must not duplicate boss completion');
+assert.equal(p.relics,relicsBeforeRepeat,'repeat kills must not grant extra relics');
+assert.equal(p.max,maxBeforeRepeat,'repeat kills must not grant first-clear HP bonus');
+assert.equal(p.atk,atkBeforeRepeat+1,'repeat kills should retain ordinary enemy stat rewards');
+assert.equal(p.def,defBeforeRepeat,'repeat kills must not grant first-clear defense bonus');
 save();
 const persisted=JSON.parse(store.get('trolltoll_web_v2'));
 assert.equal(persisted.relicBlade,true);
