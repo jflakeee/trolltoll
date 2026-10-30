@@ -95,6 +95,18 @@ assert.ok(p.bossKills.includes('boss0'),'real auto-combat must unlock quarry');
 assert.ok(p.relics>=1,'first guardian kill should grant a relic');
 assert.ok(guardian.dead>0,'guardian should enter defeat cooldown');
 p.atk=priorAttack+5;p.def=priorDefense+3;
+// Continue through the remaining bosses using the actual combat update loop.
+for(const [boss,id] of [[bosses[1],'boss1'],[bosses[2],'boss2']]){
+  for(const e of enemies)e.dead=999;
+  boss.dead=0;boss.health=boss.hp;boss.cd=999;boss.windup=0;
+  p.x=boss.x+20;p.y=boss.y;
+  p.atk=250;p.def=150;
+  for(let i=0;i<150&&!p.bossKills.includes(id);i++)update(.05);
+  assert.ok(p.bossKills.includes(id),id+' must be defeated by auto-combat');
+  assert.ok(boss.dead>0,id+' must enter defeat cooldown');
+}
+assert.equal(p.bossKills.length,3,'all three regions must be unlocked');
+assert.ok(p.relics>=3,'first clears should award three relics');
 // Long-running idle updates must not create invalid or unbounded game state.
 for(const e of enemies)e.dead=999;
 for(const n of nodes)n.respawn=999;
