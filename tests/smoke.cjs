@@ -80,6 +80,14 @@ assert.equal(sanitized.iron,0);
 assert.equal(sanitized.hp,1);
 assert.equal(sanitized.currentHp,1);
 assert.deepEqual(sanitized.bossKills,['boss0']);
+// Rendering and resizing should tolerate common portrait and landscape viewports.
+for(const [width,height,dpr] of [[320,568,1],[375,667,2],[390,844,3],[430,932,2],[844,390,2],[1024,768,1]]){
+  context.innerWidth=width;context.innerHeight=height;context.devicePixelRatio=dpr;
+  listeners.resize();
+  assert.equal(canvas.width,width*Math.min(dpr,2));
+  assert.equal(canvas.height,height*Math.min(dpr,2));
+  assert.doesNotThrow(()=>frame(120),'viewport '+width+'x'+height+' must render');
+}
 // Keyboard movement must stop after the browser loses focus.
 context.innerWidth=390;context.innerHeight=740;listeners.resize();
 listeners.keydown({key:'d',preventDefault:()=>{}});
