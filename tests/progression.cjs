@@ -54,4 +54,13 @@ const persisted=JSON.parse(store.get('trolltoll_web_v2'));
 assert.equal(persisted.relicBlade,true);
 assert.equal(persisted.bossKills.length,3);
 assert.ok(persisted.wood>=0&&persisted.stone>=0&&persisted.iron>=0);
+// A fresh game session must restore completed bosses and crafted endgame gear.
+vm.runInNewContext(source.slice(0,-5)+injection,context,{filename:'game.js'});
+const resumed=context.__test;
+assert.equal(resumed.zoneLimit(),950,'unlocked mine region must persist');
+assert.equal(resumed.p.relicBlade,true,'relic weapon must persist');
+assert.equal(resumed.p.blade,true,'forged sword must persist');
+assert.equal(resumed.p.forge,true,'forge must persist');
+assert.equal(resumed.p.bossKills.length,3,'all boss victories must persist');
+assert.match(resumed.nextGoal(),/전 지역 해금 완료/);
 console.log('Progression test passed: resource zones, crafting, three boss unlocks, relic weapon and save');
