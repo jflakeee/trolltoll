@@ -99,6 +99,14 @@ listeners.pagehide();
 const afterMenuTap=JSON.parse(storage.get('trolltoll_web_v2'));
 assert.equal(afterMenuTap.x,beforeMenuTap.x,'craft menu tap must not move player horizontally');
 assert.equal(afterMenuTap.y,beforeMenuTap.y,'craft menu tap must not move player vertically');
+// A crafting item tap must also be consumed, even if materials are insufficient.
+canvasListeners.pointerdown({clientX:350,clientY:255,pointerId:51});
+canvasListeners.pointermove({clientX:380,clientY:500,pointerId:51});
+frame(128);
+listeners.pagehide();
+const afterItemTap=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.equal(afterItemTap.x,afterMenuTap.x,'craft item tap must not start movement');
+assert.equal(afterItemTap.y,afterMenuTap.y,'craft item tap must not start movement');
 // Keyboard movement must stop after the browser loses focus.
 context.innerWidth=390;context.innerHeight=740;listeners.resize();
 listeners.keydown({key:'d',preventDefault:()=>{}});
