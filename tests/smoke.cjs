@@ -88,6 +88,17 @@ for(const [width,height,dpr] of [[320,568,1],[375,667,2],[390,844,3],[430,932,2]
   assert.equal(canvas.height,height*Math.min(dpr,2));
   assert.doesNotThrow(()=>frame(120),'viewport '+width+'x'+height+' must render');
 }
+// Tapping the crafting header must not start joystick movement.
+context.innerWidth=390;context.innerHeight=740;listeners.resize();
+listeners.pagehide();
+const beforeMenuTap=JSON.parse(storage.get('trolltoll_web_v2'));
+canvasListeners.pointerdown({clientX:350,clientY:205,pointerId:50});
+canvasListeners.pointermove({clientX:380,clientY:500,pointerId:50});
+frame(124);
+listeners.pagehide();
+const afterMenuTap=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.equal(afterMenuTap.x,beforeMenuTap.x,'craft menu tap must not move player horizontally');
+assert.equal(afterMenuTap.y,beforeMenuTap.y,'craft menu tap must not move player vertically');
 // Keyboard movement must stop after the browser loses focus.
 context.innerWidth=390;context.innerHeight=740;listeners.resize();
 listeners.keydown({key:'d',preventDefault:()=>{}});
