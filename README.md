@@ -19,9 +19,11 @@ A lightweight, browser-only HTML5 Canvas prototype. Korean UI; keyboard movement
 ```sh
 node --check game.js
 node tests/smoke.cjs
+node tests/progression.cjs
+node tests/simulation.cjs
 ```
 
-The GitHub Actions Pages workflow checks syntax and runs the headless smoke test before deploying. The smoke test covers startup, one render frame, HUD touch interaction and save serialization; it is **not** a substitute for real mobile/browser playtesting.
+The GitHub Actions Pages workflow checks syntax and runs all three headless test suites before deploying. Tests cover responsive rendering, touch input, save recovery and reload, crafting, boss unlocks, repeated boss rewards, resource regeneration and combat simulation. These are **not** substitutes for real mobile/browser playtesting.
 
 ## Outstanding design and QA
 
@@ -31,6 +33,7 @@ The GitHub Actions Pages workflow checks syntax and runs the headless smoke test
 - [ ] Tune enemy and boss difficulty using playtest timings, resource collection speed and attack/defense scaling.
 - [ ] Improve navigation, enemy AI, combat feedback, item visuals and tutorial/onboarding.
 - [ ] Add accessibility controls and reduce motion option.
-- [ ] Add automated progression and save-migration tests.
+- [x] Add automated progression, save restoration and malformed-save recovery tests (headless Node VM; not device validation).
+- [ ] Verify migration from a real legacy v1 save and test storage-disabled browser environments.
 
 The repository currently contains a playable prototype and this checklist, **not** a comprehensive original game-design specification. Completing the checklist does not automatically imply an external design has been fully implemented.
