@@ -41,6 +41,20 @@ frame(64);
 listeners.pagehide();
 const clamped=JSON.parse(storage.get('trolltoll_web_v2'));
 assert.ok(Math.hypot(clamped.x,clamped.y)<=300);
+// Malformed but parseable saves must be normalized on a fresh launch.
+storage.set('trolltoll_web_v2',JSON.stringify({...save,x:'not-a-number',y:null,level:-9,wood:-40,stone:-2,iron:-1,hp:-10,currentHp:999,bossKills:['boss0','boss0','invalid',null]}));
+vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'});
+frame(72);
+listeners.pagehide();
+const normalized=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.equal(normalized.x,0);
+assert.equal(normalized.y,0);
+assert.equal(normalized.level,1);
+assert.equal(normalized.wood,0);
+assert.equal(normalized.stone,0);
+assert.equal(normalized.iron,0);
+assert.ok(normalized.currentHp>0&&normalized.currentHp<=normalized.hp);
+assert.deepEqual(normalized.bossKills,['boss0']);
 // Exercise a short mobile viewport and an expanded crafting menu.
 context.innerWidth=320;
 context.innerHeight=480;
