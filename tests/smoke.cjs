@@ -145,4 +145,16 @@ for(const invalid of ['null','[]','42','\"broken\"','{not-json']){
   const recovered=JSON.parse(storage.get('trolltoll_web_v2'));
   assert.equal(recovered.level,1);
 }
+// Legacy v1 saves must load when v2 is absent, then migrate on save.
+storage.delete('trolltoll_web_v2');
+storage.set('trolltoll_web_v1',JSON.stringify({level:7,wood:31,stone:12,bossKills:['boss0'],x:400,y:0}));
+vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'});
+frame(160);
+listeners.pagehide();
+const migrated=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.equal(migrated.level,7);
+assert.equal(migrated.wood,31);
+assert.equal(migrated.stone,12);
+assert.deepEqual(migrated.bossKills,['boss0']);
+assert.equal(migrated.x,400);
 console.log('Smoke test passed: boot, draw, touch, save, restore, short viewport and corrupted save recovery');
