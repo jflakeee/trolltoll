@@ -55,6 +55,9 @@ assert.equal(normalized.stone,0);
 assert.equal(normalized.iron,0);
 assert.ok(normalized.currentHp>0&&normalized.currentHp<=normalized.hp);
 assert.deepEqual(normalized.bossKills,['boss0']);
+// Restore a healthy baseline so the 1-HP malformed-save case cannot interfere with movement assertions.
+storage.set('trolltoll_web_v2',JSON.stringify(save));
+vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'});
 // Exercise a short mobile viewport and an expanded crafting menu.
 context.innerWidth=320;
 context.innerHeight=480;
