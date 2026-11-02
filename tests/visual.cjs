@@ -53,11 +53,13 @@ const fs = require('node:fs');
     await page.screenshot({path:path.join(dir,'04-manual-override-resume.png')});
     // Mobile touch joystick must override auto-move, then release back to auto-move.
     const touchBefore=await position();
-    await page.evaluate(()=>{const c=document.querySelector('#game');c.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:81,clientX:70,clientY:520,pointerType:'touch'}));c.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:81,clientX:125,clientY:520,pointerType:'touch'}))});
+    await page.mouse.move(70,520);
+    await page.mouse.down();
+    await page.mouse.move(125,520,{steps:5});
     await page.waitForTimeout(450);
     const touchAfter=await position();
     assert.ok(touchAfter.x>touchBefore.x+10,'touch joystick must move in the manually requested direction');
-    await page.evaluate(()=>document.querySelector('#game').dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:81,clientX:125,clientY:520,pointerType:'touch'})));
+    await page.mouse.up();
     const touchRelease=await position();
     await page.waitForTimeout(500);
     const touchResumed=await position();
