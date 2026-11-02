@@ -78,6 +78,19 @@ const fs = require('node:fs');
     assert.equal(narrow.w,narrow.innerW,'narrow viewport canvas width must match screen');
     assert.equal(narrow.h,narrow.innerH,'narrow viewport canvas height must match screen');
     await page.screenshot({path:path.join(dir,'07-narrow-mobile.png')});
+    // Exercise real touchscreen taps (not mouse events) on the resized phone.
+    await page.touchscreen.tap(310,680); // Auto-move OFF: h - 120.
+    await page.waitForTimeout(120);
+    const tapOff=await position();
+    await page.waitForTimeout(350);
+    const tapStill=await position();
+    assert.ok(Math.hypot(tapStill.x-tapOff.x,tapStill.y-tapOff.y)<0.01,'touchscreen tap must disable auto-move');
+    await page.touchscreen.tap(310,680); // Auto-move ON.
+    const tapOn=await position();
+    await page.waitForTimeout(700);
+    const tapMoved=await position();
+    assert.ok(Math.hypot(tapMoved.x-tapOn.x,tapMoved.y-tapOn.y)>1,'touchscreen tap must re-enable auto-move');
+    await page.screenshot({path:path.join(dir,'08-touchscreen-toggle.png')});
     assert.deepEqual(errors,[],'no browser JavaScript exceptions');
     console.log('Visual verification passed:',JSON.stringify(movement));
   } finally { await browser.close(); }
