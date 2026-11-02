@@ -34,6 +34,7 @@ The GitHub Actions Pages workflow checks syntax and runs all three headless test
 - [ ] Improve navigation, enemy AI, combat feedback, item visuals and tutorial/onboarding.
 - [ ] Add accessibility controls and reduce motion option.
 - [x] Add automated progression, save restoration and malformed-save recovery tests (headless Node VM; not device validation).
-- [ ] Verify migration from a real legacy v1 save and test storage-disabled browser environments.
+- [x] Simulate v1-to-v2 save migration and storage-disabled browser environments; verify the persistent storage warning across three viewport sizes (headless tests).
+- [ ] Verify migration from an actual legacy v1 save sample on a real browser/device.
 
 The repository currently contains a playable prototype and this checklist, **not** a comprehensive original game-design specification. Completing the checklist does not automatically imply an external design has been fully implemented.
