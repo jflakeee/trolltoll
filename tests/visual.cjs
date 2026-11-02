@@ -91,6 +91,23 @@ const fs = require('node:fs');
     const tapMoved=await position();
     assert.ok(Math.hypot(tapMoved.x-tapOn.x,tapMoved.y-tapOn.y)>1,'touchscreen tap must re-enable auto-move');
     await page.screenshot({path:path.join(dir,'08-touchscreen-toggle.png')});
+    // Rotate the emulated viewport and ensure the canvas and gameplay survive.
+    await page.setViewportSize({width:800,height:360});
+    await page.waitForTimeout(350);
+    const landscape=await page.evaluate(()=>({w:document.querySelector('#game').width,h:document.querySelector('#game').height,innerW:innerWidth,innerH:innerHeight}));
+    assert.equal(landscape.w,landscape.innerW,'landscape canvas width must match viewport');
+    assert.equal(landscape.h,landscape.innerH,'landscape canvas height must match viewport');
+    const rotateBefore=await position();
+    await page.waitForTimeout(500);
+    const rotateAfter=await position();
+    assert.ok(Math.hypot(rotateAfter.x-rotateBefore.x,rotateAfter.y-rotateBefore.y)>1,'auto-move must continue after landscape rotation');
+    await page.screenshot({path:path.join(dir,'09-landscape-mobile.png')});
+    await page.setViewportSize({width:390,height:740});
+    await page.waitForTimeout(250);
+    const portrait=await page.evaluate(()=>({w:document.querySelector('#game').width,h:document.querySelector('#game').height,innerW:innerWidth,innerH:innerHeight}));
+    assert.equal(portrait.w,portrait.innerW,'portrait canvas width must restore');
+    assert.equal(portrait.h,portrait.innerH,'portrait canvas height must restore');
+    await page.screenshot({path:path.join(dir,'10-restored-portrait.png')});
     assert.deepEqual(errors,[],'no browser JavaScript exceptions');
     console.log('Visual verification passed:',JSON.stringify(movement));
   } finally { await browser.close(); }
