@@ -157,4 +157,9 @@ assert.equal(migrated.wood,31);
 assert.equal(migrated.stone,12);
 assert.deepEqual(migrated.bossKills,['boss0']);
 assert.equal(migrated.x,400);
+// Storage may throw SecurityError in restricted/private browser contexts.
+const blockedContext={...context,localStorage:{getItem(){throw Error('SecurityError')},setItem(){throw Error('QuotaExceededError')}}};
+assert.doesNotThrow(()=>vm.runInNewContext(fs.readFileSync('game.js','utf8'),blockedContext,{filename:'game.js'}));
+assert.doesNotThrow(()=>blockedContext.requestAnimationFrame(176));
+assert.doesNotThrow(()=>listeners.pagehide());
 console.log('Smoke test passed: boot, draw, touch, save, restore, short viewport and corrupted save recovery');
