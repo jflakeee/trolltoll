@@ -163,7 +163,7 @@ const warningCanvasContext=new Proxy({}, {get(target,key){if(key==='fillText')re
 const blockedCanvas={...canvas,getContext:()=>warningCanvasContext};
 const blockedContext={...context,document:{...document,getElementById:()=>blockedCanvas},localStorage:{getItem(){const e=Error('blocked');e.name='SecurityError';throw e},setItem(){const e=Error('full');e.name='QuotaExceededError';throw e}}};
 assert.doesNotThrow(()=>vm.runInNewContext(fs.readFileSync('game.js','utf8'),blockedContext,{filename:'game.js'}));
-assert.doesNotThrow(()=>blockedContext.requestAnimationFrame(176));
+assert.doesNotThrow(()=>frame(176));
 assert.ok(warningText.some(text=>text.includes('저장 불가')),'storage warning must be rendered');
 assert.doesNotThrow(()=>listeners.pagehide());
 console.log('Smoke test passed: boot, draw, touch, save, restore, short viewport and corrupted save recovery');
