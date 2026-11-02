@@ -51,6 +51,18 @@ const fs = require('node:fs');
     const resumeAfter=await position();
     assert.ok(Math.hypot(resumeAfter.x-resumeBefore.x,resumeAfter.y-resumeBefore.y)>1,'auto-move must resume after manual input');
     await page.screenshot({path:path.join(dir,'04-manual-override-resume.png')});
+    // Mobile touch joystick must override auto-move, then release back to auto-move.
+    const touchBefore=await position();
+    await page.evaluate(()=>{const c=document.querySelector('#game');c.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:81,clientX:70,clientY:520,pointerType:'touch'}));c.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:81,clientX:125,clientY:520,pointerType:'touch'}))});
+    await page.waitForTimeout(450);
+    const touchAfter=await position();
+    assert.ok(touchAfter.x>touchBefore.x+10,'touch joystick must move in the manually requested direction');
+    await page.evaluate(()=>document.querySelector('#game').dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:81,clientX:125,clientY:520,pointerType:'touch'})));
+    const touchRelease=await position();
+    await page.waitForTimeout(500);
+    const touchResumed=await position();
+    assert.ok(Math.hypot(touchResumed.x-touchRelease.x,touchResumed.y-touchRelease.y)>1,'auto-move must resume after touch release');
+    await page.screenshot({path:path.join(dir,'05-touch-override-resume.png')});
     assert.deepEqual(errors,[],'no browser JavaScript exceptions');
     console.log('Visual verification passed:',JSON.stringify(movement));
   } finally { await browser.close(); }
