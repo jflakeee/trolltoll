@@ -76,9 +76,7 @@ const fs = require('node:fs');
     // Verify a narrower phone layout without browser exceptions or a clipped canvas.
     await page.setViewportSize({width:360,height:800});
     await page.waitForTimeout(300);
-    const narrow=await page.evaluate(()=>({w:document.querySelector('#game').width,h:document.querySelector('#game').height,innerW:innerWidth,innerH:innerHeight}));
-    assert.equal(narrow.w,narrow.innerW,'narrow viewport canvas width must match screen');
-    assert.equal(narrow.h,narrow.innerH,'narrow viewport canvas height must match screen');
+    await verifyViewport('narrow');
     await page.screenshot({path:path.join(dir,'07-narrow-mobile.png')});
     // Exercise real touchscreen taps (not mouse events) on the resized phone.
     await page.touchscreen.tap(310,680); // Auto-move OFF: h - 120.
@@ -98,9 +96,7 @@ const fs = require('node:fs');
     // Rotate the emulated viewport and ensure the canvas and gameplay survive.
     await page.setViewportSize({width:800,height:360});
     await page.waitForTimeout(350);
-    const landscape=await page.evaluate(()=>({w:document.querySelector('#game').width,h:document.querySelector('#game').height,innerW:innerWidth,innerH:innerHeight}));
-    assert.equal(landscape.w,landscape.innerW,'landscape canvas width must match viewport');
-    assert.equal(landscape.h,landscape.innerH,'landscape canvas height must match viewport');
+    await verifyViewport('landscape');
     const rotateBefore=await position();
     await page.waitForTimeout(500);
     const rotateAfter=await position();
@@ -109,9 +105,7 @@ const fs = require('node:fs');
     await page.screenshot({path:path.join(dir,'09-landscape-mobile.png')});
     await page.setViewportSize({width:390,height:740});
     await page.waitForTimeout(250);
-    const portrait=await page.evaluate(()=>({w:document.querySelector('#game').width,h:document.querySelector('#game').height,innerW:innerWidth,innerH:innerHeight}));
-    assert.equal(portrait.w,portrait.innerW,'portrait canvas width must restore');
-    assert.equal(portrait.h,portrait.innerH,'portrait canvas height must restore');
+    await verifyViewport('portrait');
     await page.screenshot({path:path.join(dir,'10-restored-portrait.png')});
     assert.deepEqual(errors,[],'no browser JavaScript exceptions');
     console.log('Visual verification passed:',JSON.stringify(movement));
