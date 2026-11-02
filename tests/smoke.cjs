@@ -84,6 +84,17 @@ const released=JSON.parse(storage.get('trolltoll_web_v2'));
 assert.equal(released.x,moving.x,'lost pointer capture stops movement');
 assert.equal(canvas.width,320);
 assert.equal(canvas.height,480);
+// Large diagonal drags must clamp the joystick thumb to a circle, not a square.
+const joystickArcs=[];
+context2d.arc=(x,y,r)=>joystickArcs.push({x,y,r});
+canvasListeners.pointerdown({clientX:100,clientY:300,pointerId:20});
+canvasListeners.pointermove({clientX:300,clientY:500,pointerId:20});
+frame(116);
+const thumb=joystickArcs.at(-1),base=joystickArcs.at(-2);
+assert.equal(base.r,40,'joystick base must be circular');
+assert.equal(thumb.r,14,'joystick thumb must be circular');
+assert.ok(Math.abs(Math.hypot(thumb.x-base.x,thumb.y-base.y)-35)<0.01,'diagonal drag thumb must stay on circular radius');
+canvasListeners.pointerup({pointerId:20});
 listeners.pagehide();
 assert.ok(storage.has('trolltoll_web_v2'));
 // Corrupt saves must not produce negative resources, invalid boss IDs or impossible HP.
