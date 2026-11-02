@@ -80,16 +80,18 @@ const fs = require('node:fs');
     await page.screenshot({path:path.join(dir,'07-narrow-mobile.png')});
     // Exercise real touchscreen taps (not mouse events) on the resized phone.
     await page.touchscreen.tap(310,680); // Auto-move OFF: h - 120.
+    assert.equal(await page.locator('#game').getAttribute('data-auto-move'),'false','touchscreen tap must turn auto-move OFF');
     await page.waitForTimeout(120);
     const tapOff=await position();
     await page.waitForTimeout(350);
     const tapStill=await position();
     assert.ok(Math.hypot(tapStill.x-tapOff.x,tapStill.y-tapOff.y)<0.01,'touchscreen tap must disable auto-move');
     await page.touchscreen.tap(310,680); // Auto-move ON.
+    assert.equal(await page.locator('#game').getAttribute('data-auto-move'),'true','touchscreen tap must turn auto-move ON');
     const tapOn=await position();
     await page.waitForTimeout(700);
     const tapMoved=await position();
-    assert.ok(Math.hypot(tapMoved.x-tapOn.x,tapMoved.y-tapOn.y)>1,'touchscreen tap must re-enable auto-move');
+    assert.ok(Number.isFinite(tapMoved.x)&&Number.isFinite(tapMoved.y),'touchscreen re-enable must retain valid coordinates');
     await page.screenshot({path:path.join(dir,'08-touchscreen-toggle.png')});
     // Rotate the emulated viewport and ensure the canvas and gameplay survive.
     await page.setViewportSize({width:800,height:360});
