@@ -65,6 +65,19 @@ const fs = require('node:fs');
     const touchResumed=await position();
     assert.ok(Math.hypot(touchResumed.x-touchRelease.x,touchResumed.y-touchRelease.y)>1,'auto-move must resume after touch release');
     await page.screenshot({path:path.join(dir,'05-touch-override-resume.png')});
+    // Sustained auto-navigation must remain finite and keep rendering.
+    await page.waitForTimeout(12000);
+    const sustained=await position();
+    assert.ok(Number.isFinite(sustained.x)&&Number.isFinite(sustained.y),'long-running auto-move must keep finite coordinates');
+    assert.ok(Math.abs(sustained.x)<=950&&Math.abs(sustained.y)<=950,'long-running movement must remain within world bounds');
+    await page.screenshot({path:path.join(dir,'06-automove-soak.png')});
+    // Verify a narrower phone layout without browser exceptions or a clipped canvas.
+    await page.setViewportSize({width:360,height:800});
+    await page.waitForTimeout(300);
+    const narrow=await page.evaluate(()=>({w:document.querySelector('#game').width,h:document.querySelector('#game').height,innerW:innerWidth,innerH:innerHeight}));
+    assert.equal(narrow.w,narrow.innerW,'narrow viewport canvas width must match screen');
+    assert.equal(narrow.h,narrow.innerH,'narrow viewport canvas height must match screen');
+    await page.screenshot({path:path.join(dir,'07-narrow-mobile.png')});
     assert.deepEqual(errors,[],'no browser JavaScript exceptions');
     console.log('Visual verification passed:',JSON.stringify(movement));
   } finally { await browser.close(); }
