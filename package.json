@@ -1,0 +1,15 @@
+{
+  "name": "trolltoll",
+  "private": true,
+  "version": "0.8.0",
+  "scripts": {
+    "build": "esbuild src/pixelfx-entry.js --bundle --format=iife --platform=browser --target=es2020 --outfile=vendor/pixelfx.js",
+    "test": "node tests/smoke.cjs && node tests/progression.cjs && node tests/simulation.cjs"
+  },
+  "dependencies": {
+    "pixelfx": "github:patch-gg/pixelfx"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.10"
+  }
+}
