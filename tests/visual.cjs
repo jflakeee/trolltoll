@@ -17,6 +17,8 @@ const fs = require('node:fs');
     assert.equal(await canvas.count(),1);
     await page.screenshot({path:path.join(dir,'01-mobile-idle.png')});
     const position=()=>page.evaluate(()=>{window.dispatchEvent(new Event('pagehide'));const {x,y}=JSON.parse(localStorage.getItem('trolltoll_web_v2'));return {x,y}});
+    const canvasState=()=>page.locator('#game').getAttribute('data-auto-move');
+    const verifyViewport=async (label)=>{const v=await page.evaluate(()=>({w:document.querySelector('#game').width,h:document.querySelector('#game').height,innerW:innerWidth,innerH:innerHeight}));assert.equal(v.w,v.innerW,label+' canvas width');assert.equal(v.h,v.innerH,label+' canvas height')};
     const before=await position();
     const togglePixels=()=>page.evaluate(()=>{const c=document.querySelector('#game'),d=c.getContext('2d').getImageData(220,600,120,38).data;let hash=0;for(let i=0;i<d.length;i+=4)hash=(Math.imul(hash,31)+d[i]+d[i+1]*3+d[i+2]*7)>>>0;return hash});
     const offPixels=await togglePixels();
@@ -80,14 +82,14 @@ const fs = require('node:fs');
     await page.screenshot({path:path.join(dir,'07-narrow-mobile.png')});
     // Exercise real touchscreen taps (not mouse events) on the resized phone.
     await page.touchscreen.tap(310,680); // Auto-move OFF: h - 120.
-    assert.equal(await page.locator('#game').getAttribute('data-auto-move'),'false','touchscreen tap must turn auto-move OFF');
+    assert.equal(await canvasState(),'false','touchscreen tap must turn auto-move OFF');
     await page.waitForTimeout(120);
     const tapOff=await position();
     await page.waitForTimeout(350);
     const tapStill=await position();
     assert.ok(Math.hypot(tapStill.x-tapOff.x,tapStill.y-tapOff.y)<0.01,'touchscreen tap must disable auto-move');
     await page.touchscreen.tap(310,680); // Auto-move ON.
-    assert.equal(await page.locator('#game').getAttribute('data-auto-move'),'true','touchscreen tap must turn auto-move ON');
+    assert.equal(await canvasState(),'true','touchscreen tap must turn auto-move ON');
     const tapOn=await position();
     await page.waitForTimeout(700);
     const tapMoved=await position();
@@ -102,7 +104,7 @@ const fs = require('node:fs');
     const rotateBefore=await position();
     await page.waitForTimeout(500);
     const rotateAfter=await position();
-    assert.equal(await page.locator('#game').getAttribute('data-auto-move'),'true','auto-move must remain enabled after landscape rotation');
+    assert.equal(await canvasState(),'true','auto-move must remain enabled after landscape rotation');
     assert.ok(Number.isFinite(rotateAfter.x)&&Number.isFinite(rotateAfter.y),'landscape rotation must preserve finite player coordinates');
     await page.screenshot({path:path.join(dir,'09-landscape-mobile.png')});
     await page.setViewportSize({width:390,height:740});
