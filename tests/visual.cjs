@@ -38,6 +38,19 @@ const fs = require('node:fs');
     const still=await position();
     assert.ok(Math.hypot(still.x-stopped.x,still.y-stopped.y)<0.01,'auto-move OFF must stop movement');
     await page.screenshot({path:path.join(dir,'03-mobile-stopped.png')});
+    // Manual input takes precedence over auto-navigation, then auto-navigation resumes.
+    await page.mouse.click(340,620); // Enable auto-move again.
+    await page.keyboard.down('d');
+    const manualBefore=await position();
+    await page.waitForTimeout(450);
+    const manualAfter=await position();
+    await page.keyboard.up('d');
+    assert.ok(manualAfter.x>manualBefore.x+10,'manual D input must override auto-move and increase world x');
+    const resumeBefore=await position();
+    await page.waitForTimeout(500);
+    const resumeAfter=await position();
+    assert.ok(Math.hypot(resumeAfter.x-resumeBefore.x,resumeAfter.y-resumeBefore.y)>1,'auto-move must resume after manual input');
+    await page.screenshot({path:path.join(dir,'04-manual-override-resume.png')});
     assert.deepEqual(errors,[],'no browser JavaScript exceptions');
     console.log('Visual verification passed:',JSON.stringify(movement));
   } finally { await browser.close(); }
