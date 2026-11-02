@@ -159,11 +159,19 @@ assert.deepEqual(migrated.bossKills,['boss0']);
 assert.equal(migrated.x,400);
 // Storage may throw SecurityError in restricted/private browser contexts.
 const warningText=[];
-const warningCanvasContext=new Proxy({}, {get(target,key){if(key==='fillText')return text=>warningText.push(String(text));return target[key]||(()=>{});},set(target,key,value){target[key]=value;return true;}});
+const warningPositions=[];
+const warningCanvasContext=new Proxy({}, {get(target,key){if(key==='fillText')return (text,x,y)=>{warningText.push(String(text));if(String(text).includes('저장 불가'))warningPositions.push({x,y});};return target[key]||(()=>{});},set(target,key,value){target[key]=value;return true;}});
 const blockedCanvas={...canvas,getContext:()=>warningCanvasContext};
 const blockedContext={...context,document:{...document,getElementById:()=>blockedCanvas},localStorage:{getItem(){const e=Error('blocked');e.name='SecurityError';throw e},setItem(){const e=Error('full');e.name='QuotaExceededError';throw e}}};
 assert.doesNotThrow(()=>vm.runInNewContext(fs.readFileSync('game.js','utf8'),blockedContext,{filename:'game.js'}));
 assert.doesNotThrow(()=>frame(176));
 assert.ok(warningText.some(text=>text.includes('저장 불가')),'storage warning must be rendered');
+for(const [width,height] of [[320,480],[390,740],[844,390]]){
+  blockedContext.innerWidth=width;blockedContext.innerHeight=height;
+  listeners.resize();
+  frame(180);
+  const pos=warningPositions.at(-1);
+  assert.ok(pos&&pos.y>=0&&pos.y<height-90,'storage warning must remain above bottom controls at '+width+'x'+height);
+}
 assert.doesNotThrow(()=>listeners.pagehide());
 console.log('Smoke test passed: boot, draw, touch, save, restore, short viewport and corrupted save recovery');
