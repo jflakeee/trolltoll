@@ -168,6 +168,22 @@ assert.equal(migrated.wood,31);
 assert.equal(migrated.stone,12);
 assert.deepEqual(migrated.bossKills,['boss0']);
 assert.equal(migrated.x,400);
+// Auto-move should seek a target, stop when disabled, and yield to manual input.
+storage.set('trolltoll_web_v2',JSON.stringify({...save,x:0,y:0}));
+context.innerWidth=390;context.innerHeight=740;
+vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'});
+listeners.resize();
+canvasListeners.pointerdown({clientX:340,clientY:620,pointerId:70}); // Auto-move button.
+for(let t=200;t<=1000;t+=50)frame(t);
+listeners.pagehide();
+const autoMoved=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.ok(Math.hypot(autoMoved.x,autoMoved.y)>0.1,'auto-move must move toward a target');
+canvasListeners.pointerdown({clientX:340,clientY:620,pointerId:71}); // Disable.
+const stoppedAt={x:autoMoved.x,y:autoMoved.y};
+frame(1050);listeners.pagehide();
+const stopped=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.equal(stopped.x,stoppedAt.x,'auto-move off must stop horizontal movement');
+assert.equal(stopped.y,stoppedAt.y,'auto-move off must stop vertical movement');
 // Storage may throw SecurityError in restricted/private browser contexts.
 const warningText=[];
 const warningPositions=[];
