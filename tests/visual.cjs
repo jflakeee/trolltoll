@@ -93,6 +93,13 @@ const fs = require('node:fs');
     const tapMoved=await position();
     assert.ok(Number.isFinite(tapMoved.x)&&Number.isFinite(tapMoved.y),'touchscreen re-enable must retain valid coordinates');
     await page.screenshot({path:path.join(dir,'08-touchscreen-toggle.png')});
+    // Cycle the bottom-right action mode button with real touchscreen taps.
+    for(const expected of ['combat','gather','auto']){
+      await page.touchscreen.tap(310,750); // Mode button: h - 50.
+      assert.equal(await page.locator('#game').getAttribute('data-action-mode'),expected,'touchscreen mode must cycle to '+expected);
+      assert.equal(await canvasState(),'true','changing action mode must preserve auto-move');
+    }
+    await page.screenshot({path:path.join(dir,'08b-touchscreen-modes.png')});
     // Rotate the emulated viewport and ensure the canvas and gameplay survive.
     await page.setViewportSize({width:800,height:360});
     await page.waitForTimeout(350);
