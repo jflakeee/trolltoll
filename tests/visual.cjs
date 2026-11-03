@@ -53,6 +53,17 @@ const fs = require('node:fs');
     const resumeAfter=await position();
     assert.ok(Math.hypot(resumeAfter.x-resumeBefore.x,resumeAfter.y-resumeBefore.y)>1,'auto-move must resume after manual input');
     await page.screenshot({path:path.join(dir,'04-manual-override-resume.png')});
+    // Losing browser focus must release held movement keys.
+    await page.keyboard.down('d');
+    await page.waitForTimeout(100);
+    await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
+    const blurBefore=await position();
+    await page.waitForTimeout(450);
+    const blurAfter=await position();
+    await page.keyboard.up('d');
+    assert.ok(Number.isFinite(blurAfter.x)&&Number.isFinite(blurAfter.y),'blur must preserve finite coordinates');
+    assert.equal(await canvasState(),'true','blur must preserve auto-move setting');
+    await page.screenshot({path:path.join(dir,'04b-focus-recovery.png')});
     // Mobile touch joystick must override auto-move, then release back to auto-move.
     const touchBefore=await position();
     await page.mouse.move(70,520);
