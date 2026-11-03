@@ -135,6 +135,19 @@ const fs = require('node:fs');
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
     assert.ok(afterCancelDrag.x>afterCancel.x+5,'joystick must recover after interrupted touch gesture');
     assert.equal(await canvasState(),'true','touch cancellation must preserve auto-move state');
+    // Losing pointer capture must also release an interrupted joystick gesture.
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:65,y:520,id:5}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:125,y:520,id:5}]});
+    await page.evaluate(()=>{const c=document.querySelector('#game');if(c.hasPointerCapture(5))c.releasePointerCapture(5)});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await page.waitForTimeout(100);
+    const captureRelease=await position();
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:65,y:520,id:6}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:125,y:520,id:6}]});
+    await page.waitForTimeout(300);
+    const afterCaptureRelease=await position();
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    assert.ok(afterCaptureRelease.x>captureRelease.x+5,'joystick must recover after pointer capture is lost');
     await page.screenshot({path:path.join(dir,'08c-touchscreen-drag.png')});
     // Rotate the emulated viewport and ensure the canvas and gameplay survive.
     await page.setViewportSize({width:800,height:360});
