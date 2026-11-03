@@ -110,6 +110,18 @@ const fs = require('node:fs');
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
     assert.ok(dragEnd.x>dragStart.x+10,'real touchscreen drag must move player to the right');
     assert.equal(await canvasState(),'true','touch drag must not disable auto-move');
+    const released=await position();
+    await page.waitForTimeout(550);
+    const afterRelease=await position();
+    assert.ok(Number.isFinite(afterRelease.x)&&Number.isFinite(afterRelease.y),'touch release must preserve valid player coordinates');
+    assert.equal(await canvasState(),'true','auto-move must remain enabled after releasing touch');
+    // A second touch must be accepted after the first finger lifts.
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:65,y:520,id:2}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:125,y:520,id:2}]});
+    await page.waitForTimeout(300);
+    const secondDrag=await position();
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    assert.ok(secondDrag.x>afterRelease.x+5,'joystick must accept a second touch drag after release');
     await page.screenshot({path:path.join(dir,'08c-touchscreen-drag.png')});
     // Rotate the emulated viewport and ensure the canvas and gameplay survive.
     await page.setViewportSize({width:800,height:360});
