@@ -100,6 +100,17 @@ const fs = require('node:fs');
       assert.equal(await canvasState(),'true','changing action mode must preserve auto-move');
     }
     await page.screenshot({path:path.join(dir,'08b-touchscreen-modes.png')});
+    // Real touch drag via Chromium input events, independent of mouse emulation.
+    const cdp=await page.context().newCDPSession(page);
+    const dragStart=await position();
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:65,y:520,id:1}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:125,y:520,id:1}]});
+    await page.waitForTimeout(450);
+    const dragEnd=await position();
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    assert.ok(dragEnd.x>dragStart.x+10,'real touchscreen drag must move player to the right');
+    assert.equal(await canvasState(),'true','touch drag must not disable auto-move');
+    await page.screenshot({path:path.join(dir,'08c-touchscreen-drag.png')});
     // Rotate the emulated viewport and ensure the canvas and gameplay survive.
     await page.setViewportSize({width:800,height:360});
     await page.waitForTimeout(350);
