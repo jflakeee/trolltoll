@@ -122,6 +122,19 @@ const fs = require('node:fs');
     const secondDrag=await position();
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
     assert.ok(secondDrag.x>afterRelease.x+5,'joystick must accept a second touch drag after release');
+    // OS interruption should cancel the gesture and free the joystick.
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:65,y:520,id:3}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:125,y:520,id:3}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});
+    await page.waitForTimeout(120);
+    const afterCancel=await position();
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:65,y:520,id:4}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:125,y:520,id:4}]});
+    await page.waitForTimeout(300);
+    const afterCancelDrag=await position();
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    assert.ok(afterCancelDrag.x>afterCancel.x+5,'joystick must recover after interrupted touch gesture');
+    assert.equal(await canvasState(),'true','touch cancellation must preserve auto-move state');
     await page.screenshot({path:path.join(dir,'08c-touchscreen-drag.png')});
     // Rotate the emulated viewport and ensure the canvas and gameplay survive.
     await page.setViewportSize({width:800,height:360});
