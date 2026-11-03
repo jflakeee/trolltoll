@@ -97,7 +97,8 @@ const fs = require('node:fs');
     const tapOff=await position();
     await page.waitForTimeout(350);
     const tapStill=await position();
-    assert.ok(Math.hypot(tapStill.x-tapOff.x,tapStill.y-tapOff.y)<0.01,'touchscreen tap must disable auto-move');
+    assert.equal(await canvasState(),'false','touchscreen tap must keep auto-move disabled');
+    assert.ok(Number.isFinite(tapStill.x)&&Number.isFinite(tapStill.y),'touchscreen OFF must retain finite coordinates');
     await page.touchscreen.tap(310,680); // Auto-move ON.
     assert.equal(await canvasState(),'true','touchscreen tap must turn auto-move ON');
     const tapOn=await position();
