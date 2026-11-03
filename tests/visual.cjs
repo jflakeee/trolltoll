@@ -136,9 +136,10 @@ const fs = require('node:fs');
     assert.ok(afterCancelDrag.x>afterCancel.x+5,'joystick must recover after interrupted touch gesture');
     assert.equal(await canvasState(),'true','touch cancellation must preserve auto-move state');
     // Losing pointer capture must also release an interrupted joystick gesture.
+    await page.evaluate(()=>document.querySelector('#game').addEventListener('pointerdown',e=>{window.__lastTouchPointerId=e.pointerId},{once:true}));
     await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:65,y:520,id:5}]});
     await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:125,y:520,id:5}]});
-    await page.evaluate(()=>{const c=document.querySelector('#game');if(c.hasPointerCapture(5))c.releasePointerCapture(5)});
+    await page.evaluate(()=>{const c=document.querySelector('#game'),id=window.__lastTouchPointerId;if(!Number.isInteger(id))throw Error('missing touch pointer id');c.dispatchEvent(new PointerEvent('lostpointercapture',{pointerId:id,bubbles:true}))});
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
     await page.waitForTimeout(100);
     const captureRelease=await position();
