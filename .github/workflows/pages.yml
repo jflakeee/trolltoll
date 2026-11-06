@@ -33,3 +33,17 @@ jobs:
           path: .
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify deployed game script
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5 6; do
+            if curl --fail --silent --show-error --location --max-time 15 "https://jflakeee.github.io/trolltoll/game.js?sha=${GITHUB_SHA}" -o /tmp/trolltoll-deployed.js && grep -q 'function attemptEnhancement()' /tmp/trolltoll-deployed.js; then
+              echo "Published game.js contains the enhancement gameplay."
+              exit 0
+            fi
+            echo "Waiting for GitHub Pages propagation (attempt ${attempt}/6)"
+            sleep 10
+          done
+          echo "::error::Published game.js does not contain the expected enhancement gameplay."
+          exit 1
+
