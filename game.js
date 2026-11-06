@@ -1,7 +1,35 @@
 (()=>{
 'use strict';
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),KEY='trolltoll_web_v2';
-let old={},storageWarning=false;try{old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('trolltoll_web_v1')||'{}');if(!old||typeof old!=='object'||Array.isArray(old))old={}}catch(e){old={};if(e.name==='SecurityError'||e.name==='QuotaExceededError')storageWarning=true}
+const KEY_V3='trolltoll_web_v3';
+let old={},progressionSave=null,storageWarning=false;
+try{
+  const rawV3=localStorage.getItem(KEY_V3);
+  const v3=rawV3?JSON.parse(rawV3):null;
+  if(v3&&v3.schemaVersion===3&&v3.legacy&&typeof v3.legacy==='object'&&!Array.isArray(v3.legacy)){
+    old=v3.legacy;
+    progressionSave=v3.progression;
+  }else{
+    old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('trolltoll_web_v1')||'{}');
+  }
+  if(!old||typeof old!=='object'||Array.isArray(old))old={};
+}catch(e){
+  try{old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('trolltoll_web_v1')||'{}')}catch(_){old={}}
+  if(!old||typeof old!=='object'||Array.isArray(old))old={};
+  if(e.name==='SecurityError'||e.name==='QuotaExceededError')storageWarning=true;
+}
+const validCount=v=>Number.isSafeInteger(v)&&v>=0?v:0;
+const savedInv=progressionSave&&progressionSave.inventory||{};
+const savedWeapon=progressionSave&&progressionSave.equipment&&progressionSave.equipment.mainWeapon||{};
+const savedFailures=savedWeapon.failuresByLevel||{};
+const failuresByLevel={};
+if(savedFailures&&typeof savedFailures==='object'&&!Array.isArray(savedFailures))for(const [k,v] of Object.entries(savedFailures))if(/^(0|[1-9]|1[0-4])$/.test(k))failuresByLevel[k]=validCount(v);
+const enhancementLevel=Math.min(15,validCount(savedWeapon.enhancementLevel));
+const progression={
+  inventory:{enhancementStone:validCount(savedInv.enhancementStone),protectionStone:validCount(savedInv.protectionStone),awakeningStone:validCount(savedInv.awakeningStone),evolutionStone:validCount(savedInv.evolutionStone),ancientWood:validCount(savedInv.ancientWood)},
+  equipment:{mainWeapon:{enhancementLevel,highestEnhancementLevel:Math.min(15,Math.max(enhancementLevel,validCount(savedWeapon.highestEnhancementLevel))),failuresByLevel}},
+  rewardPity:{normalKills:validCount(progressionSave&&progressionSave.rewardPity&&progressionSave.rewardPity.normalKills),logging:validCount(progressionSave&&progressionSave.rewardPity&&progressionSave.rewardPity.logging),mining:validCount(progressionSave&&progressionSave.rewardPity&&progressionSave.rewardPity.mining),rareVein:validCount(progressionSave&&progressionSave.rewardPity&&progressionSave.rewardPity.rareVein)}
+};
 const num=(x,d)=>x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))?Number(x):d;const positive=(x,d)=>Math.max(1,num(x,d));const count=(x,d=0)=>Math.max(0,Math.floor(num(x,d)));
 const p={x:num(old.x,0),y:num(old.y,0),level:count(old.level,1)||1,xp:count(old.xp),atk:positive(old.atk,10),def:count(old.def,5),max:positive(old.hp,100),hp:positive(old.currentHp,positive(old.hp,100)),kills:count(old.kills),gold:count(old.gold),wood:count(old.wood),stone:count(old.stone),iron:count(old.iron),workbench:!!old.workbench,forge:!!old.forge,pick:!!old.pick,axe:!!old.axe,blade:!!old.blade,club:!!old.club,armor:!!old.armor,relics:count(old.relics),relicBlade:!!old.relicBlade,bossKills:Array.isArray(old.bossKills)?[...new Set(old.bossKills.filter(id=>['boss0','boss1','boss2'].includes(id)))]:[],cd:0,action:0,target:-1};
 let w=0,h=0,last=performance.now(),regen=0,touch=null,notice='',noticeTimer=0,hitTimer=0,selected=null,work=null,mode='auto',craftOpen=false,craftPage=0,hudCompact=false,fx=[],bursts=[],lastZone='초원',gateNoticeCooldown=0,autoMove=false,autoTargetId=null;
@@ -10,7 +38,11 @@ const enemies=Array.from({length:21},(_,i)=>{const t=types[i%3],radius=i<7?230:i
 const bosses=[{id:'boss0',kind:'enemy',boss:true,i:31,name:'초원 수호자',hp:420,health:420,atk:12,xp:35,color:'#f1c35f',stat:'hp',x:250,y:20,dead:0,cd:0},{id:'boss1',kind:'enemy',boss:true,i:32,name:'채석 거인',hp:900,health:900,atk:20,xp:75,color:'#e29b73',stat:'def',x:-420,y:30,dead:0,cd:0},{id:'boss2',kind:'enemy',boss:true,i:33,name:'광산 군주',hp:1800,health:1800,atk:32,xp:150,color:'#c89bf5',stat:'atk',x:620,y:100,dead:0,cd:0}];enemies.push(...bosses);const nodes=Array.from({length:42},(_,i)=>{const a=i*2.399,r=i<14?90+Math.sqrt(i)*52:115+Math.sqrt(i)*85;const kind=i<14?(i%4===0?'stone':'tree'):i<28?(i%3===0?'tree':'stone'):(i%4===0?'stone':'iron');return{id:'n'+i,kind,x:Math.cos(a)*r,y:Math.sin(a)*r,stock:kind==='tree'?3:2,respawn:0}});
 const buttons=[{id:'club',label:'나무 곤봉',cost:'목재12 돌6',enabled:()=>p.workbench&&!p.club&&p.wood>=12&&p.stone>=6,show:()=>p.workbench&&!p.club,act:()=>{p.wood-=12;p.stone-=6;p.club=true;p.atk+=6;note('나무 곤봉 제작 · 공격력 +6')}},{id:'armor',label:'돌 갑옷',cost:'돌18 목재8',enabled:()=>p.workbench&&!p.armor&&p.stone>=18&&p.wood>=8,show:()=>p.workbench&&!p.armor,act:()=>{p.stone-=18;p.wood-=8;p.armor=true;p.def+=4;note('돌 갑옷 제작 · 방어력 +4')}},{id:'bench',label:'작업대',cost:'목재15 돌10',enabled:()=>!p.workbench&&p.wood>=15&&p.stone>=10,show:()=>!p.workbench,act:()=>{p.wood-=15;p.stone-=10;p.workbench=true;note('작업대 건설 완료')}},{id:'forge',label:'제련소',cost:'목재12 돌15',enabled:()=>p.workbench&&!p.forge&&p.wood>=12&&p.stone>=15,show:()=>p.workbench&&!p.forge,act:()=>{p.wood-=12;p.stone-=15;p.forge=true;note('제련소 건설 완료')}},{id:'pick',label:'철 곡괭이',cost:'철광석5 목재3',enabled:()=>p.workbench&&p.iron>=5&&p.wood>=3&&!p.pick,show:()=>p.workbench&&!p.pick,act:()=>{p.iron-=5;p.wood-=3;p.pick=true;note('철 곡괭이 제작 · 채굴 속도 증가')}},{id:'axe',label:'강화 도끼',cost:'목재8 철광석3',enabled:()=>p.workbench&&p.wood>=8&&p.iron>=3&&!p.axe,show:()=>p.workbench&&!p.axe,act:()=>{p.wood-=8;p.iron-=3;p.axe=true;note('강화 도끼 제작 · 벌목 속도 증가')}},{id:'blade',label:'제련 검',cost:'철광석12 돌8',enabled:()=>p.forge&&p.iron>=12&&p.stone>=8&&!p.blade,show:()=>p.forge&&!p.blade,act:()=>{p.iron-=12;p.stone-=8;p.blade=true;p.atk+=8;note('제련 검 제작 · 공격력 +8')}},{id:'relicBlade',label:'수호자의 검',cost:'유물2 철광석20',enabled:()=>p.forge&&p.blade&&p.relics>=2&&p.iron>=20&&!p.relicBlade,show:()=>p.forge&&p.blade&&!p.relicBlade,act:()=>{p.relics-=2;p.iron-=20;p.relicBlade=true;p.atk+=20;note('수호자의 검 제작 · 공격력 +20')}}];
 function note(s){notice=s;noticeTimer=2}function effect(x,y,text,color='#ffe4a0'){fx.push({x,y,text,color,life:1.1});if(fx.length>24)fx.shift()}function burst(x,y,color){bursts.push({x,y,color,life:.3});if(bursts.length>20)bursts.shift()}function facilityPosition(kind){return kind==='bench'?{x:75,y:-45}:{x:120,y:-45}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({x:p.x,y:p.y,level:p.level,xp:p.xp,atk:p.atk,def:p.def,hp:p.max,currentHp:Math.ceil(Math.max(1,p.hp)),kills:p.kills,gold:p.gold,wood:p.wood,stone:p.stone,iron:p.iron,workbench:p.workbench,forge:p.forge,pick:p.pick,axe:p.axe,blade:p.blade,club:p.club,armor:p.armor,relics:p.relics,relicBlade:p.relicBlade,bossKills:p.bossKills}))}catch(e){storageWarning=true;console.warn('저장 실패',e)}}
+function save(){try{
+  const legacy={x:p.x,y:p.y,level:p.level,xp:p.xp,atk:p.atk,def:p.def,hp:p.max,currentHp:Math.ceil(Math.max(1,p.hp)),kills:p.kills,gold:p.gold,wood:p.wood,stone:p.stone,iron:p.iron,workbench:p.workbench,forge:p.forge,pick:p.pick,axe:p.axe,blade:p.blade,club:p.club,armor:p.armor,relics:p.relics,relicBlade:p.relicBlade,bossKills:p.bossKills};
+  localStorage.setItem(KEY_V3,JSON.stringify({schemaVersion:3,revision:0,legacy,progression}));
+  localStorage.setItem(KEY,JSON.stringify(legacy));
+}catch(e){storageWarning=true;console.warn('저장 실패',e)}}
 addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{last=performance.now();if(document.hidden){touch=null;keys.clear();save()}});addEventListener('blur',()=>{touch=null;keys.clear()});setInterval(save,5000);
 addEventListener('keydown',e=>{keys.add(e.key.toLowerCase());if(e.key.startsWith('Arrow'))e.preventDefault()});addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 function resize(){w=innerWidth;h=innerHeight;const d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(w*d);canvas.height=Math.round(h*d);ctx.setTransform(d,0,0,d,0,0)}addEventListener('resize',resize);resize();
