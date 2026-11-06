@@ -67,7 +67,7 @@ function attemptEnhancement(){
  else{weapon.failuresByLevel[r.level]=(weapon.failuresByLevel[r.level]||0)+1;if(r.level>=5&&!protectEnhancement)weapon.enhancementLevel--;note('강화 실패 · 현재 +'+weapon.enhancementLevel)}
  save();return success;
 }
-function enhanceTop(){return Math.max(210,Math.min(h-180,craftTop()+55))}
+function enhanceTop(){return Math.max(craftTop()+48,Math.min(h-enhancePanelHeight()-100,craftTop()+55))}
 function enhancePanelHeight(){return 134}
 function note(s){notice=s;noticeTimer=2}function effect(x,y,text,color='#ffe4a0'){fx.push({x,y,text,color,life:1.1});if(fx.length>24)fx.shift()}function burst(x,y,color){bursts.push({x,y,color,life:.3});if(bursts.length>20)bursts.shift()}function facilityPosition(kind){return kind==='bench'?{x:75,y:-45}:{x:120,y:-45}}
 function save(){try{
