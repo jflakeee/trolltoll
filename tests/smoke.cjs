@@ -4,6 +4,10 @@ const assert = require('node:assert/strict');
 const listeners = {};
 const canvasListeners = {};
 const storage = new Map();
+// Explicit legacy fixture writes represent a fresh browser without a newer v3 save.
+const rawSet=storage.set.bind(storage),rawDelete=storage.delete.bind(storage);
+storage.set=(key,value)=>{if(key==='trolltoll_web_v2')rawDelete('trolltoll_web_v3');return rawSet(key,value)};
+storage.delete=key=>{if(key==='trolltoll_web_v2')rawDelete('trolltoll_web_v3');return rawDelete(key)};
 const context2d = new Proxy({}, {get(target, key) {return target[key] || (() => {});}, set(target, key, value) {target[key] = value; return true;}});
 const canvas = {width:0,height:0,getContext:()=>context2d,addEventListener:(name,cb)=>canvasListeners[name]=cb,setPointerCapture:()=>{}};
 const document = {hidden:false,getElementById:(id)=>id==='game'?canvas:null,addEventListener:(name,cb)=>listeners[name]=cb};
