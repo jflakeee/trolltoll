@@ -24,9 +24,9 @@ jobs:
       - name: Install PixelFX and build browser adapter
         run: npm install --no-audit --no-fund && npm run build
       - name: Check JavaScript syntax
-        run: node --check game.js && node --check tests/smoke.cjs && node --check tests/progression.cjs && node --check tests/simulation.cjs && node --check src/rules/enhancement.cjs && node --check tests/enhancement.cjs && node --check src/rules/save-v3.cjs && node --check tests/save-v3.cjs && node --check tests/browser-v3.cjs && node --check tests/enhancement-integration.cjs
+        run: node --check game.js && node --check tests/smoke.cjs && node --check tests/progression.cjs && node --check tests/simulation.cjs && node --check src/rules/enhancement.cjs && node --check tests/enhancement.cjs && node --check src/rules/save-v3.cjs && node --check tests/save-v3.cjs && node --check tests/browser-v3.cjs && node --check tests/enhancement-integration.cjs && node --check tests/enhancement-gameplay.cjs
       - name: Run game smoke test
-        run: node tests/smoke.cjs && node tests/progression.cjs && node tests/simulation.cjs && node tests/enhancement.cjs && node tests/save-v3.cjs && node tests/browser-v3.cjs && node tests/enhancement-integration.cjs
+        run: node tests/smoke.cjs && node tests/progression.cjs && node tests/simulation.cjs && node tests/enhancement.cjs && node tests/save-v3.cjs && node tests/browser-v3.cjs && node tests/enhancement-integration.cjs && node tests/enhancement-gameplay.cjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
