@@ -3,11 +3,11 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync('game.js','utf8').replace(/\}\)\(\);\s*$/, 'globalThis.__probe={p,progression,attemptEnhancement,enhanceTop,enhanceLeft,enhancePanelHeight};})();');
-const storage=new Map(),handlers={};
+const storage=new Map(),handlers={},windowHandlers={};
 const context2d=new Proxy({}, {get:(o,k)=>o[k]||(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas={getContext:()=>context2d,addEventListener:(event,fn)=>handlers[event]=fn,setPointerCapture:()=>{},dataset:{}};
 const rng=Object.create(Math);rng.random=()=>.99;
-const ctx={document:{hidden:false,getElementById:()=>canvas,addEventListener:()=>{}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},innerWidth:390,innerHeight:740,devicePixelRatio:1,performance:{now:()=>0},requestAnimationFrame:()=>{},setInterval:()=>{},addEventListener:()=>{},console,Math:rng};
+const ctx={document:{hidden:false,getElementById:()=>canvas,addEventListener:()=>{}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},innerWidth:390,innerHeight:740,devicePixelRatio:1,performance:{now:()=>0},requestAnimationFrame:()=>{},setInterval:()=>{},addEventListener:(event,fn)=>windowHandlers[event]=fn,console,Math:rng};
 vm.runInNewContext(source,ctx);
 const {p,progression,attemptEnhancement,enhanceTop,enhancePanelHeight}=ctx.__probe;
 p.forge=true;p.gold=100000;p.iron=10000;
@@ -31,6 +31,7 @@ assert.equal(progression.inventory.protectionStone,1,'unprotected attempt preser
 assert.equal(JSON.parse(storage.get('trolltoll_web_v3')).progression.equipment.mainWeapon.enhancementLevel,7);
 // Re-run the same touch path in short landscape dimensions.
 ctx.innerWidth=640;ctx.innerHeight=320;
+windowHandlers.resize();
 const shortX=ctx.__probe.enhanceLeft(),shortY=enhanceTop()+100;
 assert.equal(shortX,10,'short landscape moves panel to left');
 assert.equal(enhanceTop(),100,'short landscape places panel above bottom controls');
