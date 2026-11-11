@@ -1,0 +1,51 @@
+name: Install Claude Code Game Studios v1.3.0
+on:
+  push:
+    branches:
+      - feat/claude-game-studios-v1-3-0
+permissions:
+  contents: write
+jobs:
+  install:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned upstream framework
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v1.3.0 --single-branch https://github.com/Donchitos/Claude-Code-Game-Studios.git "$RUNNER_TEMP/ccgs"
+          test "$(git -C "$RUNNER_TEMP/ccgs" rev-parse HEAD)" = "abc0de79d6ceb0b5d7aa693945849b3937afbe6a"
+      - name: Install without overwriting existing Troll Toll files
+        shell: bash
+        run: |
+          set -euo pipefail
+          upstream="$RUNNER_TEMP/ccgs"
+          mkdir -p .claude docs/third-party
+          rsync -a --ignore-existing "$upstream/.claude/" .claude/
+          for dir in studio-tests docs; do
+            mkdir -p "$dir"
+            rsync -a --ignore-existing --exclude='third-party/' "$upstream/$dir/" "$dir/"
+          done
+          for file in CLAUDE.md project.yaml; do
+            if [ ! -e "$file" ]; then cp "$upstream/$file" "$file"; fi
+          done
+          cp "$upstream/LICENSE" docs/third-party/Claude-Code-Game-Studios-LICENSE
+          printf '%s\n' 'Claude Code Game Studios v1.3.0' 'https://github.com/Donchitos/Claude-Code-Game-Studios' 'Pinned upstream commit: abc0de79d6ceb0b5d7aa693945849b3937afbe6a' 'MIT license; original license at Claude-Code-Game-Studios-LICENSE.' > docs/third-party/Claude-Code-Game-Studios-SOURCE.txt
+          test -f .claude/skills/pixelfx/SKILL.md
+          test -f .claude/settings.json
+          test -f .claude/skills/start/SKILL.md
+      - name: Commit installed framework to feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .claude CLAUDE.md project.yaml studio-tests docs
+          if git diff --cached --quiet; then
+            echo "Framework already installed"
+          else
+            git commit -m "chore: vendor Claude Code Game Studios v1.3.0"
+            git push origin HEAD:feat/claude-game-studios-v1-3-0
+          fi
