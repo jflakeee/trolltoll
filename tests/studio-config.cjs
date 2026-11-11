@@ -1,0 +1,26 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const yaml=fs.readFileSync('project.yaml','utf8');
+const claude=fs.readFileSync('CLAUDE.md','utf8');
+const prefs=fs.readFileSync('.claude/docs/technical-preferences.md','utf8');
+const stage=fs.readFileSync('production/stage.txt','utf8').trim();
+const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
+function has(pattern,label){assert.match(yaml,pattern,label)}
+has(/^  rigor: standard$/m,'standard rigor');
+has(/^  automation: guided$/m,'guided automation');
+has(/^  name: "Web"$/m,'web engine');
+has(/^  language: "JavaScript"$/m,'existing language');
+has(/^  code_root: "\."$/m,'flat game code root');
+has(/^  goal: mobile$/m,'mobile goal');
+has(/^  stage: Concept$/m,'initial stage');
+assert.equal(stage,'Concept','stage mirror');
+assert.match(claude,/Web \(HTML5 Canvas 2D/,'existing web game');
+assert.match(claude,/@docs\/engine-reference\/web\/VERSION\.md/,'engine reference');
+assert.match(prefs,/\*\*Primary Input\*\*: Touch/,'mobile primary input');
+assert.ok(fs.existsSync('design/gdd/game-concept.md'),'concept document');
+assert.ok(fs.existsSync('.claude/skills/pixelfx/SKILL.md'),'existing PixelFX skill preserved');
+assert.ok(fs.existsSync('game.js'),'game runtime preserved');
+assert.ok(fs.existsSync('index.html'),'browser entry preserved');
+assert.ok(pkg.scripts.test.includes('tests/studio-config.cjs'),'studio config regression included');
+console.log('Claude Code Game Studios standard Web onboarding verified');

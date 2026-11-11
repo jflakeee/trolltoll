@@ -10,31 +10,31 @@
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Web (existing HTML5 Canvas 2D)
+- **Language**: JavaScript (ES2020 browser, CommonJS rules)
+- **Rendering**: Canvas 2D, isometric-style projection
+- **Physics**: Custom game-loop collision/movement; no external physics engine
 
 ## Input & Platform
 
 <!-- Written by /setup-engine. Read by /ux-design, /ux-review, /test-setup, /team-ui, and /dev-story -->
 <!-- to scope interaction specs, test helpers, and implementation to the correct input methods. -->
 
-- **Target Platforms**: [TO BE CONFIGURED — e.g., PC, Console, Mobile, Web]
-- **Input Methods**: [TO BE CONFIGURED — e.g., Keyboard/Mouse, Gamepad, Touch, Mixed]
-- **Primary Input**: [TO BE CONFIGURED — the dominant input for this game]
-- **Gamepad Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Touch Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Platform Notes**: [TO BE CONFIGURED — any platform-specific UX constraints]
+- **Target Platforms**: Mobile Web, Desktop Web; Android planned
+- **Input Methods**: Touch drag, keyboard WASD/arrows, pointer
+- **Primary Input**: Touch
+- **Gamepad Support**: None
+- **Touch Support**: Partial (existing prototype; real-device QA pending)
+- **Platform Notes**: Mobile-first responsive HUD; safe areas and short landscape devices need validation
 
 ## Naming Conventions
 
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Classes**: PascalCase
+- **Variables**: camelCase
+- **Signals/Events**: on_event_name
+- **Files**: kebab-case for new files; preserve existing filenames
+- **Scenes/Prefabs**: snake_case when applicable
+- **Constants**: SCREAMING_SNAKE
 
 ## Performance Budgets
 
@@ -45,8 +45,8 @@
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
-- **Minimum Coverage**: [TO BE CONFIGURED]
+- **Framework**: Node.js assert + VM test scripts via `npm test`
+- **Minimum Coverage**: No percentage gate; all existing regression tests must pass
 - **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
 
 ## Forbidden Patterns

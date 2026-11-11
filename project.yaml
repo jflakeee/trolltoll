@@ -25,3 +25,37 @@ framework:
 # here. `/project-settings --local <key>=<value>` writes there; `/project-settings <key>=<value>`
 # edits this file. See `.claude/docs/config-resolution.md` for the full
 # precedence order.
+
+# /start — existing Troll Toll project; no game scaffold or engine migration.
+project:
+  stage: Concept
+  goal: mobile
+
+modes:
+  rigor: standard
+  automation: guided
+
+# /setup-engine web — retain existing JavaScript/Canvas code and esbuild.
+engine:
+  name: "Web"
+  language: "JavaScript"
+  code_root: "."
+  test_root: "tests"
+
+specialists:
+  code: "lead-programmer"
+  shader: "lead-programmer"
+  ui: "lead-programmer"
+  additional: []
+
+naming:
+  classes: PascalCase
+  variables: camelCase
+  constants: SCREAMING_SNAKE
+  signals: on_event_name
+  files: kebab-case
+  scenes: snake_case
+
+commands:
+  build: "npm run build"
+  test: "npm test"
