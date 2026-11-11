@@ -27,10 +27,19 @@ jobs:
         run: node --check game.js && node --check tests/smoke.cjs && node --check tests/progression.cjs && node --check tests/simulation.cjs && node --check src/rules/enhancement.cjs && node --check tests/enhancement.cjs && node --check src/rules/save-v3.cjs && node --check tests/save-v3.cjs && node --check tests/browser-v3.cjs && node --check tests/enhancement-integration.cjs && node --check tests/enhancement-gameplay.cjs && node --check tests/enhancement-mobile.cjs
       - name: Run game smoke test
         run: node tests/smoke.cjs && node tests/progression.cjs && node tests/simulation.cjs && node tests/enhancement.cjs && node tests/save-v3.cjs && node tests/browser-v3.cjs && node tests/enhancement-integration.cjs && node tests/enhancement-gameplay.cjs && node tests/enhancement-mobile.cjs
+      - name: Prepare minimal public game artifact
+        run: |
+          set -euo pipefail
+          mkdir -p site/vendor
+          cp index.html game.js site/
+          cp vendor/pixelfx.js site/vendor/
+          test -s site/index.html
+          test -s site/game.js
+          test -s site/vendor/pixelfx.js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: site
       - id: deployment
         uses: actions/deploy-pages@v4
       - name: Verify deployed game script
