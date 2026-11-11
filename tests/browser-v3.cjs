@@ -44,6 +44,6 @@ vm.runInNewContext(source,context);
 listeners.pagehide();
 v3=JSON.parse(storage.get('trolltoll_web_v3'));
 assert.equal(v3.legacy.level,12,'broken v3 falls back to v2');
-assert.equal(v3.progression.equipment.mainWeapon.enhancementLevel,0);
+assert.equal(v3.progression.equipment.mainWeapon.enhancementLevel,8,'valid backup must restore enhancement instead of losing it');
 assert.equal(typeof frame,'function');
 console.log('browser v3 persistence tests passed');
