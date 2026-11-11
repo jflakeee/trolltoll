@@ -34,7 +34,7 @@ Troll Toll is a mobile-first isometric-style browser RPG built around moving, au
 
 **11 Construction & facility unlocks:** Workbench and forge construction unlocks crafting and enhancement options.
 
-**12 Regions, bosses & relics:** Three bosses gate the quarry and mine; first-clear relic rewards drive area progression.
+**12 Regions and bosses with relics:** Three bosses gate the quarry and mine; first-clear relic rewards drive area progression.
 
 **13 Enhancement & protection:** Main-weapon +0 to +15, probabilistic success, protection stones, downgrade and pity create a long-term sink; pure rules and browser logic require parity checks.
 
@@ -221,7 +221,7 @@ The order below is for **reverse-documenting and reviewing existing systems**, n
 | Save/load & migration | Technical | Dual legacy/v3 writes and invalid data may lose progression | Migration fixtures, roundtrip tests, corrupt-save and rollback cases |
 | Responsive HUD & crafting UI | UX | Short landscape screens and pointer hit targets can overlap | Test portrait/landscape, safe areas and real-device touch targets |
 | Auto navigation & target modes | UX / Technical | Stuck targeting, locked regions and manual override may confuse players | Boundary, selection and interruption simulations |
-| Regions, bosses & relics | Design | Repeat kills and unlock gates may yield unintended rewards | First-clear/repeat-clear regression scenarios |
+| Regions and bosses with relics | Design | Repeat kills and unlock gates may yield unintended rewards | First-clear/repeat-clear regression scenarios |
 | Android packaging & device QA | Scope / Technical | No Android artifact or real-device evidence | Separate proof-of-concept after web input and save stability |
 | Economy & balance | Design | Long-term resource rates and enhancement cost may create grind spikes | Deterministic Monte Carlo simulations and player-session budgets |
 
