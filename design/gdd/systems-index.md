@@ -75,15 +75,15 @@ Troll Toll is a mobile-first isometric-style browser RPG built around moving, au
 | 2 | Input & player movement | Core | MVP | Implemented | — | Game loop & state |
 | 3 | World projection & camera | Core | MVP | Implemented | — | Game loop & state, Input & player movement |
 | 4 | Enemy spawning & AI | Gameplay | MVP | Implemented | — | Game loop & state, World projection & camera |
-| 5 | Auto combat & damage | Gameplay | MVP | Implemented | `design/gdd/auto-combat-system.md` | Game loop & state, Input & player movement, Enemy spawning & AI |
+| 5 | Auto combat & damage | Gameplay | MVP | Implemented | design/gdd/auto-combat-system.md | Game loop & state, Input & player movement, Enemy spawning & AI |
 | 6 | XP and levels with immediate stats | Progression | MVP | Implemented | — | Auto combat & damage |
 | 7 | Resource nodes & auto gathering | Gameplay | MVP | Implemented | — | Game loop & state, Input & player movement, World projection & camera |
 | 8 | Resource inventory & currencies | Economy | MVP | Implemented | — | XP and levels with immediate stats, Resource nodes & auto gathering |
-| 9 | Save/load & migration | Persistence | MVP | Implemented | `design/gdd/save-load-system.md` | — |
+| 9 | Save/load & migration | Persistence | MVP | Implemented | design/gdd/save-load-system.md | — |
 | 10 | Crafting & equipment | Economy | Vertical Slice | Implemented | — | Resource inventory & currencies |
 | 11 | Construction & facility unlocks | Gameplay | Vertical Slice | Implemented | — | Resource nodes & auto gathering, Resource inventory & currencies |
 | 12 | Regions and boss gates with relics | Progression | Vertical Slice | Implemented | — | Enemy spawning & AI, Auto combat & damage, XP and levels with immediate stats |
-| 13 | Enhancement & protection | Progression | Vertical Slice | Implemented | `design/gdd/enhancement-system.md` | Resource inventory & currencies, Save/load & migration, Crafting & equipment, Construction & facility unlocks |
+| 13 | Enhancement & protection | Progression | Vertical Slice | Implemented | design/gdd/enhancement-system.md | Resource inventory & currencies, Save/load & migration, Crafting & equipment, Construction & facility unlocks |
 | 14 | Reward drops & pity | Economy | Vertical Slice | Implemented | — | Auto combat & damage, Resource nodes & auto gathering, Resource inventory & currencies |
 | 15 | Auto navigation & target modes | Gameplay | Vertical Slice | Implemented | — | Input & player movement, World projection & camera, Enemy spawning & AI, Resource nodes & auto gathering |
 | 16 | Responsive HUD & crafting UI | UI | Vertical Slice | Implemented | — | Input & player movement, XP and levels with immediate stats, Resource inventory & currencies, Crafting & equipment, Enhancement & protection |
