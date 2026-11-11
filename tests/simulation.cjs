@@ -112,7 +112,7 @@ for(const e of enemies){e.dead=999;e.cd=999;}
 for(const n of nodes)n.respawn=999;
 const single=enemies.find(e=>!e.boss);
 single.dead=0;single.health=1;single.atk=0;single.cd=999;
-p.x=0;p.y=0;single.x=20;single.y=0;
+p.x=0;p.y=0;p.cd=0;single.x=20;single.y=0;
 const killsBeforeSingle=p.kills;
 update(.05);
 assert.equal(p.kills,killsBeforeSingle+1,'one lethal hit grants exactly one kill');
