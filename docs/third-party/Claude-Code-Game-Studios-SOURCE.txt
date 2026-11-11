@@ -1,0 +1,4 @@
+Claude Code Game Studios v1.3.0
+https://github.com/Donchitos/Claude-Code-Game-Studios
+Pinned upstream commit: abc0de79d6ceb0b5d7aa693945849b3937afbe6a
+MIT license; original license at Claude-Code-Game-Studios-LICENSE.
