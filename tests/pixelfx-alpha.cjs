@@ -10,7 +10,7 @@ const render=source.slice(start,end);
 let bg='unset',drawn=false;
 const frame={w:2,h:2};
 const imageData={data:new Uint8ClampedArray(16)};
-const canvas={width:0,height:0,getContext:()=>({putImageData:(image)=>{assert.equal(image,imageData);}})};
+const canvas={width:0,height:0,getContext:()=>({clearRect:()=>{},putImageData:(image)=>{assert.equal(image,imageData);}})};
 const api={
  clearFrame:()=>{},
  composite:(f,data,background)=>{
