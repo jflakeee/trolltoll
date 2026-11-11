@@ -34,10 +34,11 @@ const fs = require('node:fs');
     assert.ok(movement.width>0&&movement.height>0,'canvas must render');
     assert.ok(movement.px,'PixelFX browser runtime must load');
     // Verify transparent pixels survive PixelFX compositing in real Chromium Canvas.
-    const alpha=await page.evaluate(()=>{
+    for(const kind of ['collect','hit']){
+    const alpha=await page.evaluate((kind)=>{
       const api=window.PixelFX;
       const frame=api.createFrame(112,108);
-      const fx=api.createFx(api.effects.collect,{x:56,y:94});
+      const fx=api.createFx(api.effects[kind],{x:56,y:94});
       const offscreen=document.createElement('canvas');
       offscreen.width=112;offscreen.height=108;
       const context=offscreen.getContext('2d');
@@ -59,10 +60,11 @@ const fs = require('node:fs');
         if(visible&&transparent)break;
       }
       return {visible,transparent,cornerAlpha:context.getImageData(0,0,1,1).data[3]};
-    });
+    },kind);
     assert.ok(alpha.visible,'PixelFX must paint visible effect pixels in Chromium');
     assert.ok(alpha.transparent,'PixelFX must retain fully transparent background pixels');
-    assert.equal(alpha.cornerAlpha,0,'PixelFX overlay corner must not cover game background');
+    assert.equal(alpha.cornerAlpha,0,'PixelFX overlay corner must not cover game background: '+kind);
+    }
     await page.mouse.click(340,620);
     await page.waitForTimeout(150);
     const stopped=await position();
