@@ -90,6 +90,14 @@ const fs = require('node:fs');
     await page.waitForTimeout(300);
     await verifyViewport('narrow');
     await page.screenshot({path:path.join(dir,'07-narrow-mobile.png')});
+    // Minimum supported phone width: verify canvas sizing and no runtime errors.
+    await page.setViewportSize({width:320,height:640});
+    await page.waitForTimeout(300);
+    await verifyViewport('320px phone');
+    await page.screenshot({path:path.join(dir,'07b-320px-mobile.png')});
+    await page.setViewportSize({width:360,height:800});
+    await page.waitForTimeout(200);
+    await verifyViewport('restored narrow');
     // Exercise real touchscreen taps (not mouse events) on the resized phone.
     await page.touchscreen.tap(310,680); // Auto-move OFF: h - 120.
     assert.equal(await canvasState(),'false','touchscreen tap must turn auto-move OFF');
