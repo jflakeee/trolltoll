@@ -84,6 +84,17 @@ const released=JSON.parse(storage.get('trolltoll_web_v2'));
 assert.equal(released.x,moving.x,'lost pointer capture stops movement');
 assert.equal(canvas.width,320);
 assert.equal(canvas.height,480);
+// P2: a tiny finger jitter must not move the player, but an intentional drag must.
+canvasListeners.pointerdown({clientX:100,clientY:300,pointerId:19});
+listeners.pagehide();
+const jitterBefore=JSON.parse(storage.get('trolltoll_web_v2'));
+canvasListeners.pointermove({clientX:104,clientY:303,pointerId:19});
+frame(114);
+listeners.pagehide();
+const jitterAfter=JSON.parse(storage.get('trolltoll_web_v2'));
+assert.equal(jitterAfter.x,jitterBefore.x,'touch jitter under 8px must not move horizontally');
+assert.equal(jitterAfter.y,jitterBefore.y,'touch jitter under 8px must not move vertically');
+canvasListeners.pointerup({pointerId:19});
 // Large diagonal drags must clamp the joystick thumb to a circle, not a square.
 const joystickArcs=[];
 context2d.arc=(x,y,r)=>joystickArcs.push({x,y,r});
