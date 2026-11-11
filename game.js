@@ -33,7 +33,10 @@ try{
  }
  if(!plain(old))old={};
 }catch(e){
- saveBlocked=true;storageWarning=true;
+ // Invalid legacy JSON may initialize a fresh game when no full v3 save exists.
+ // Storage access denial still blocks writes to avoid destructive recovery.
+ if(e.name!=='SyntaxError')saveBlocked=true;
+ storageWarning=true;
  try{old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('trolltoll_web_v1')||'{}')}catch(_){old={}}
  if(!plain(old))old={};
 }
