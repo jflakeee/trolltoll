@@ -94,6 +94,19 @@ const fs = require('node:fs');
     await page.setViewportSize({width:320,height:640});
     await page.waitForTimeout(300);
     await verifyViewport('320px phone');
+    const tinyScreen=await page.evaluate(()=>{
+      const c=document.querySelector('#game');
+      const data=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+      let opaque=0,nonBlack=0;
+      for(let i=0;i<data.length;i+=4){
+        if(data[i+3]>0)opaque++;
+        if(data[i]||data[i+1]||data[i+2])nonBlack++;
+      }
+      return {opaque,nonBlack,total:c.width*c.height,scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth};
+    });
+    assert.ok(tinyScreen.opaque>tinyScreen.total*.9,'320px canvas must paint most of the viewport');
+    assert.ok(tinyScreen.nonBlack>tinyScreen.total*.1,'320px game must render visible non-black pixels');
+    assert.ok(tinyScreen.scrollWidth<=tinyScreen.viewport,'320px page must not overflow horizontally');
     await page.screenshot({path:path.join(dir,'07b-320px-mobile.png')});
     await page.setViewportSize({width:360,height:800});
     await page.waitForTimeout(200);
