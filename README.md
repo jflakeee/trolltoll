@@ -17,13 +17,13 @@ A lightweight, browser-only HTML5 Canvas prototype. Korean UI; keyboard movement
 ## Test and deployment
 
 ```sh
+npm install --no-audit --no-fund
+npm run build
 node --check game.js
-node tests/smoke.cjs
-node tests/progression.cjs
-node tests/simulation.cjs
+npm test
 ```
 
-The GitHub Actions Pages workflow checks syntax and runs all three headless test suites before deploying. Tests cover responsive rendering, touch input, save recovery and reload, crafting, boss unlocks, repeated boss rewards, resource regeneration and combat simulation. These are **not** substitutes for real mobile/browser playtesting.
+This repository currently has no `package-lock.json`, so use `npm install` rather than `npm ci` until a lockfile is generated and committed. The GitHub Actions Pages workflow builds PixelFX, checks JavaScript syntax, and runs the complete `npm test` regression suite before deploying. This includes save recovery, enhancement, PixelFX alpha, combat/gathering, and Game Studios configuration checks. Automated checks are **not** substitutes for real mobile/browser playtesting. A committed workflow change does not itself prove that Actions or Pages deployment succeeded.
 
 ## Outstanding design and QA
 
