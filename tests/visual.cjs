@@ -64,6 +64,29 @@ const fs = require('node:fs');
     assert.ok(alpha.visible,'PixelFX must paint visible effect pixels in Chromium');
     assert.ok(alpha.transparent,'PixelFX must retain fully transparent background pixels');
     assert.equal(alpha.cornerAlpha,0,'PixelFX overlay corner must not cover game background: '+kind);
+    // Composite the effect over a solid game-like background; transparent
+    // pixels must preserve the exact underlying color instead of a dark box.
+    const overlay=await page.evaluate((kind)=>{
+      const api=window.PixelFX,frame=api.createFrame(112,108);
+      const fx=api.createFx(api.effects[kind],{x:56,y:94});
+      const c=document.createElement('canvas');c.width=112;c.height=108;
+      const ctx=c.getContext('2d'),image=ctx.createImageData(112,108);
+      let result=null;
+      for(let step=0;step<30;step++){
+        api.clearFrame(frame);fx.update(1/60);fx.draw(frame);
+        image.data.fill(0);api.composite(frame,image.data,null);
+        if(!image.data.some((v,i)=>i%4===3&&v>0))continue;
+        ctx.fillStyle='rgb(37, 89, 131)';ctx.fillRect(0,0,112,108);
+        const layer=document.createElement('canvas');layer.width=112;layer.height=108;
+        layer.getContext('2d').putImageData(image,0,0);
+        ctx.drawImage(layer,0,0);
+        const corner=Array.from(ctx.getImageData(0,0,1,1).data);
+        result={corner,hasEffect:true};break;
+      }
+      return result;
+    },kind);
+    assert.ok(overlay?.hasEffect,'PixelFX overlay must render for '+kind);
+    assert.deepEqual(overlay.corner,[37,89,131,255],'transparent PixelFX corner must preserve background: '+kind);
     }
     await page.mouse.click(340,620);
     await page.waitForTimeout(150);
