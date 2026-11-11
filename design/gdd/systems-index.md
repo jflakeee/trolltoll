@@ -22,7 +22,7 @@ Troll Toll is a mobile-first isometric-style browser RPG built around moving, au
 
 **05 Auto combat & damage:** The proximity-based attack loop and defense/damage rules define the game's hands-free combat identity.
 
-**06 XP, levels & immediate stats:** Kills grant XP and stat gains without a pickup step, making growth immediately visible.
+**06 XP and levels with immediate stats:** Kills grant XP and stat gains without a pickup step, making growth immediately visible.
 
 **07 Resource nodes & gathering:** Trees, stone and iron nodes replenish over time and yield materials through automatic interaction.
 
@@ -76,23 +76,23 @@ Troll Toll is a mobile-first isometric-style browser RPG built around moving, au
 | 3 | World projection & camera | Core | MVP | Implemented | — | Game loop & state, Input & player movement |
 | 4 | Enemy spawning & AI | Gameplay | MVP | Implemented | — | Game loop & state, World projection & camera |
 | 5 | Auto combat & damage | Gameplay | MVP | Implemented | — | Game loop & state, Input & player movement, Enemy spawning & AI |
-| 6 | XP, levels & immediate stats | Progression | MVP | Implemented | — | Auto combat & damage |
+| 6 | XP and levels with immediate stats | Progression | MVP | Implemented | — | Auto combat & damage |
 | 7 | Resource nodes & auto gathering | Gameplay | MVP | Implemented | — | Game loop & state, Input & player movement, World projection & camera |
-| 8 | Resource inventory & currencies | Economy | MVP | Implemented | — | XP, levels & immediate stats, Resource nodes & auto gathering |
+| 8 | Resource inventory & currencies | Economy | MVP | Implemented | — | XP and levels with immediate stats, Resource nodes & auto gathering |
 | 9 | Save/load & migration | Persistence | MVP | Implemented | — | — |
 | 10 | Crafting & equipment | Economy | Vertical Slice | Implemented | — | Resource inventory & currencies |
 | 11 | Construction & facility unlocks | Gameplay | Vertical Slice | Implemented | — | Resource nodes & auto gathering, Resource inventory & currencies |
-| 12 | Regions, boss gates & relics | Progression | Vertical Slice | Implemented | — | Enemy spawning & AI, Auto combat & damage, XP, levels & immediate stats |
+| 12 | Regions, boss gates & relics | Progression | Vertical Slice | Implemented | — | Enemy spawning & AI, Auto combat & damage, XP and levels with immediate stats |
 | 13 | Enhancement & protection | Progression | Vertical Slice | Implemented | — | Resource inventory & currencies, Save/load & migration, Crafting & equipment, Construction & facility unlocks |
 | 14 | Reward drops & pity | Economy | Vertical Slice | Implemented | — | Auto combat & damage, Resource nodes & auto gathering, Resource inventory & currencies |
 | 15 | Auto navigation & target modes | Gameplay | Vertical Slice | Implemented | — | Input & player movement, World projection & camera, Enemy spawning & AI, Resource nodes & auto gathering |
-| 16 | Responsive HUD & crafting UI | UI | Vertical Slice | Implemented | — | Input & player movement, XP, levels & immediate stats, Resource inventory & currencies, Crafting & equipment, Enhancement & protection |
+| 16 | Responsive HUD & crafting UI | UI | Vertical Slice | Implemented | — | Input & player movement, XP and levels with immediate stats, Resource inventory & currencies, Crafting & equipment, Enhancement & protection |
 | 17 | Combat/gather VFX & feedback | UI | Alpha | Implemented | — | Auto combat & damage, Resource nodes & auto gathering, Responsive HUD & crafting UI |
-| 18 | Onboarding & objective guidance (inferred) | Meta | Alpha | Not Started | — | XP, levels & immediate stats, Crafting & equipment, Construction & facility unlocks, Regions, boss gates & relics, Responsive HUD & crafting UI |
+| 18 | Onboarding & objective guidance (inferred) | Meta | Alpha | Not Started | — | XP and levels with immediate stats, Crafting & equipment, Construction & facility unlocks, Regions, boss gates & relics, Responsive HUD & crafting UI |
 | 19 | Accessibility & input settings (inferred) | Meta | Full Vision | Not Started | — | Input & player movement, Responsive HUD & crafting UI |
 | 20 | Android packaging & device QA (inferred) | Meta | Full Vision | Not Started | — | Game loop & state, Input & player movement, Save/load & migration, Responsive HUD & crafting UI |
 | 21 | Audio & music (inferred) | Audio | Full Vision | Not Started | — | Game loop & state, Auto combat & damage, Resource nodes & auto gathering |
-| 22 | Economy & balance telemetry (inferred) | Meta | Full Vision | Not Started | — | XP, levels & immediate stats, Resource inventory & currencies, Regions, boss gates & relics, Enhancement & protection, Reward drops & pity |
+| 22 | Economy & balance telemetry (inferred) | Meta | Full Vision | Not Started | — | XP and levels with immediate stats, Resource inventory & currencies, Regions, boss gates & relics, Enhancement & protection, Reward drops & pity |
 
 > “Implemented” is an implementation observation, not a design approval. #18 has partial in-game goal hints but is marked Not Started because a dedicated onboarding flow is absent.
 
@@ -142,28 +142,28 @@ Dependency arrows always point from the dependent to its prerequisite. Cross-lay
 
 ### Feature Layer
 
-- **6. XP, levels & immediate stats** — depends on Auto combat & damage
+- **6. XP and levels with immediate stats** — depends on Auto combat & damage
 - **7. Resource nodes & auto gathering** — depends on Game loop & state, Input & player movement, World projection & camera
-- **8. Resource inventory & currencies** — depends on XP, levels & immediate stats, Resource nodes & auto gathering
+- **8. Resource inventory & currencies** — depends on XP and levels with immediate stats, Resource nodes & auto gathering
 - **10. Crafting & equipment** — depends on Resource inventory & currencies
 - **11. Construction & facility unlocks** — depends on Resource nodes & auto gathering, Resource inventory & currencies
-- **12. Regions, boss gates & relics** — depends on Enemy spawning & AI, Auto combat & damage, XP, levels & immediate stats
+- **12. Regions, boss gates & relics** — depends on Enemy spawning & AI, Auto combat & damage, XP and levels with immediate stats
 - **13. Enhancement & protection** — depends on Resource inventory & currencies, Save/load & migration, Crafting & equipment, Construction & facility unlocks
 - **14. Reward drops & pity** — depends on Auto combat & damage, Resource nodes & auto gathering, Resource inventory & currencies
 - **15. Auto navigation & target modes** — depends on Input & player movement, World projection & camera, Enemy spawning & AI, Resource nodes & auto gathering
 
 ### Presentation Layer
 
-- **16. Responsive HUD & crafting UI** — depends on Input & player movement, XP, levels & immediate stats, Resource inventory & currencies, Crafting & equipment, Enhancement & protection
+- **16. Responsive HUD & crafting UI** — depends on Input & player movement, XP and levels with immediate stats, Resource inventory & currencies, Crafting & equipment, Enhancement & protection
 - **17. Combat/gather VFX & feedback** — depends on Auto combat & damage, Resource nodes & auto gathering, Responsive HUD & crafting UI
 
 ### Polish Layer
 
-- **18. Onboarding & objective guidance (inferred)** — depends on XP, levels & immediate stats, Crafting & equipment, Construction & facility unlocks, Regions, boss gates & relics, Responsive HUD & crafting UI
+- **18. Onboarding & objective guidance (inferred)** — depends on XP and levels with immediate stats, Crafting & equipment, Construction & facility unlocks, Regions, boss gates & relics, Responsive HUD & crafting UI
 - **19. Accessibility & input settings (inferred)** — depends on Input & player movement, Responsive HUD & crafting UI
 - **20. Android packaging & device QA (inferred)** — depends on Game loop & state, Input & player movement, Save/load & migration, Responsive HUD & crafting UI
 - **21. Audio & music (inferred)** — depends on Game loop & state, Auto combat & damage, Resource nodes & auto gathering
-- **22. Economy & balance telemetry (inferred)** — depends on XP, levels & immediate stats, Resource inventory & currencies, Regions, boss gates & relics, Enhancement & protection, Reward drops & pity
+- **22. Economy & balance telemetry (inferred)** — depends on XP and levels with immediate stats, Resource inventory & currencies, Regions, boss gates & relics, Enhancement & protection, Reward drops & pity
 
 ### Dependency bottlenecks
 
@@ -187,7 +187,7 @@ The order below is for **reverse-documenting and reviewing existing systems**, n
 | 4 | World projection & camera | MVP | Core | lead-programmer, game-designer | M |
 | 5 | Enemy spawning & AI | MVP | Core | game-designer, lead-programmer | L |
 | 6 | Auto combat & damage | MVP | Core | game-designer, lead-programmer | L |
-| 7 | XP, levels & immediate stats | MVP | Feature | game-designer, lead-programmer | M |
+| 7 | XP and levels with immediate stats | MVP | Feature | game-designer, lead-programmer | M |
 | 8 | Resource nodes & auto gathering | MVP | Feature | game-designer, lead-programmer | M |
 | 9 | Resource inventory & currencies | MVP | Feature | game-designer, lead-programmer | M |
 | 10 | Construction & facility unlocks | Vertical Slice | Feature | game-designer, lead-programmer | M |
