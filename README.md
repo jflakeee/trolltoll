@@ -38,3 +38,13 @@ The GitHub Actions Pages workflow checks syntax and runs all three headless test
 - [ ] Verify migration from an actual legacy v1 save sample on a real browser/device.
 
 The repository currently contains a playable prototype and this checklist, **not** a comprehensive original game-design specification. Completing the checklist does not automatically imply an external design has been fully implemented.
+
+## Claude Code Game Studios
+
+This repository includes **Claude Code Game Studios v1.3.0** development tools
+(agents, skills, hooks and project templates) without replacing the existing
+web game or the PixelFX skill. To start a Claude Code session, install the
+Claude Code CLI on your computer, open this repository root, then run
+`/start` and select the existing-game workflow.
+
+See [Claude Code Game Studios setup](docs/CLAUDE_GAME_STUDIOS.md).
