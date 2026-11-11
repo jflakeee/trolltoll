@@ -24,7 +24,12 @@ jobs:
       - name: Install PixelFX and build browser adapter
         run: npm install --no-audit --no-fund && npm run build
       - name: Check JavaScript syntax
-        run: node --check game.js && node --check tests/smoke.cjs && node --check tests/progression.cjs && node --check tests/simulation.cjs && node --check src/rules/enhancement.cjs && node --check tests/enhancement.cjs && node --check src/rules/save-v3.cjs && node --check tests/save-v3.cjs && node --check tests/browser-v3.cjs && node --check tests/enhancement-integration.cjs && node --check tests/enhancement-gameplay.cjs && node --check tests/enhancement-mobile.cjs && node --check tests/studio-config.cjs
+        run: |
+          set -euo pipefail
+          node --check game.js
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find src tests -type f \( -name '*.js' -o -name '*.cjs' \) -print0)
       - name: Run full regression suite (including Game Studios integration)
         run: npm test
       - name: Prepare minimal public game artifact
