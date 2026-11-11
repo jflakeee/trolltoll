@@ -14,7 +14,7 @@ for(const [file,name,markers] of specs){
  assert.match(doc,/Reverse-documented from implementation/);
  assert.match(doc,/INTENT UNKNOWN/);
  for(const heading of ['## 1. Overview','## 2. Detailed Design','## 3. Formulas Discovered','## 4. Edge Cases and Dependencies','## 5. Acceptance Criteria'])assert.ok(doc.includes(heading),path+' missing '+heading);
- assert.match(doc,/Review:\*\* pending/);
+ assert.match(doc,/Review:\*\* (?:pending|remediation drafted; re-review pending)/);
  for(const marker of markers)assert.ok(game.includes(marker),path+' source marker absent: '+marker);
  const row=index.split('\n').find(x=>x.startsWith('| ')&&x.includes('| '+name+' |'));
  assert.ok(row&&row.includes(path),name+' missing index link');
