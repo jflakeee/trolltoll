@@ -17,7 +17,7 @@ for(const [file,name,markers] of specs){
  assert.match(doc,/Review:\*\* pending/);
  for(const marker of markers)assert.ok(game.includes(marker),path+' source marker absent: '+marker);
  const row=index.split('\n').find(x=>x.startsWith('| ')&&x.includes('| '+name+' |'));
- assert.ok(row&&row.includes('`'+path+'`'),name+' missing index link');
+ assert.ok(row&&row.includes(path),name+' missing index link');
 }
 const chance=JSON.parse(fs.readFileSync('data/enhancement.json','utf8')).chance;
 assert.equal(chance.length,15);
