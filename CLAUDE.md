@@ -5,11 +5,11 @@ Each agent owns a specific domain, enforcing separation of concerns and quality.
 
 ## Technology Stack
 
-- **Engine**: [CHOOSE: Web / Godot 4 / Unity / Unreal Engine 5]
-- **Language**: [CHOOSE: TypeScript / GDScript / C# / C++ / Blueprint]
+- **Engine**: Web (HTML5 Canvas 2D; esbuild 0.25.x for PixelFX adapter)
+- **Language**: JavaScript (existing browser IIFE and CommonJS rules)
 - **Version Control**: Git with trunk-based development
-- **Build System**: [SPECIFY after choosing engine]
-- **Asset Pipeline**: [SPECIFY after choosing engine]
+- **Build System**: esbuild — `npm run build` (browser PixelFX adapter); `npm test` (Node.js regression suite)
+- **Asset Pipeline**: Existing static assets and PixelFX dependency; no Vite/TypeScript conversion
 
 > **Note**: Engine-specialist agents exist for Godot, Unity, and Unreal with
 > dedicated sub-specialists. Use the set matching your engine.
@@ -19,6 +19,8 @@ Each agent owns a specific domain, enforcing separation of concerns and quality.
 @.claude/docs/directory-structure.md
 
 ## Engine Version Reference
+
+@docs/engine-reference/web/VERSION.md
 
 <!-- ENGINE-REFERENCE-IMPORT: the line under this comment is engine-specific,
      and there is none until an engine is set. /setup-engine, the grow's record
@@ -79,3 +81,13 @@ elsewhere in the repo, so they are restated here rather than lost:
 - **Helpers in `.claude/scripts/` emit observations, never verdicts.** A script
   that scores or judges will eventually contradict a mode or override it cannot
   see. (Cited by `artifact-check.sh` and `adr-dep-graph.sh`.)
+
+## Troll Toll existing-game constraints
+
+- Preserve `index.html`, `game.js`, `src/rules/`, `data/`, `tests/` and the existing PixelFX skill.
+- This is an **existing Web project**, not a new Vite/TypeScript scaffold.
+- Main entry: `index.html`; game logic: `game.js`; tests: `npm test`.
+- Current deployment: GitHub Pages via `.github/workflows/pages.yml`.
+- Keep mobile touch controls and desktop WASD support; Android packaging is a later milestone.
+- Every completed task should be committed and deployment status verified; never claim a deployment passed without Actions evidence.
+- Design decisions and acceptance criteria: `design/gdd/game-concept.md`.
