@@ -46,13 +46,13 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in 1 2 3 4 5 6; do
-            if curl --fail --silent --show-error --location --max-time 15 "https://jflakeee.github.io/trolltoll/game.js?sha=${GITHUB_SHA}" -o /tmp/trolltoll-deployed.js && cmp -s site/game.js /tmp/trolltoll-deployed.js; then
-              echo "Published game.js exactly matches the committed build artifact."
+            if curl --fail --silent --show-error --location --max-time 15 "https://jflakeee.github.io/trolltoll/game.js?sha=${GITHUB_SHA}" -o /tmp/trolltoll-deployed.js && curl --fail --silent --show-error --location --max-time 15 "https://jflakeee.github.io/trolltoll/index.html?sha=${GITHUB_SHA}" -o /tmp/trolltoll-deployed.html && curl --fail --silent --show-error --location --max-time 15 "https://jflakeee.github.io/trolltoll/vendor/pixelfx.js?sha=${GITHUB_SHA}" -o /tmp/trolltoll-deployed-pixelfx.js && cmp -s site/game.js /tmp/trolltoll-deployed.js && cmp -s site/index.html /tmp/trolltoll-deployed.html && cmp -s site/vendor/pixelfx.js /tmp/trolltoll-deployed-pixelfx.js; then
+              echo "Published HTML, game script and PixelFX bundle match the committed build artifacts."
               exit 0
             fi
             echo "Waiting for GitHub Pages propagation (attempt ${attempt}/6)"
             sleep 10
           done
-          echo "::error::Published game.js does not match the committed build artifact."
+          echo "::error::Published HTML, game script or PixelFX bundle differs from the committed build artifacts."
           exit 1
 
