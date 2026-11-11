@@ -107,6 +107,31 @@ for(const [boss,id] of [[bosses[1],'boss1'],[bosses[2],'boss2']]){
 }
 assert.equal(p.bossKills.length,3,'all three regions must be unlocked');
 assert.ok(p.relics>=3,'first clears should award three relics');
+// P2: defeated targets must not grant duplicate rewards during their cooldown.
+for(const e of enemies){e.dead=999;e.cd=999;}
+for(const n of nodes)n.respawn=999;
+const single=enemies.find(e=>!e.boss);
+single.dead=0;single.health=1;single.atk=0;single.cd=999;
+p.x=0;p.y=0;single.x=20;single.y=0;
+const killsBeforeSingle=p.kills;
+update(.05);
+assert.equal(p.kills,killsBeforeSingle+1,'one lethal hit grants exactly one kill');
+const killsAfterSingle=p.kills;
+for(let i=0;i<30;i++)update(.05);
+assert.equal(p.kills,killsAfterSingle,'dead enemy cannot reward twice before respawn');
+// P2: exhausted nodes must not yield extra materials before their respawn.
+for(const e of enemies)e.dead=999;
+const singleTree=nodes.find(n=>n.kind==='tree');
+for(const n of nodes)n.respawn=999;
+singleTree.respawn=0;singleTree.stock=1;
+p.x=singleTree.x;p.y=singleTree.y;
+const woodBeforeSingle=p.wood;
+for(let i=0;i<60;i++)update(.05);
+assert.equal(p.wood,woodBeforeSingle+3,'one remaining tree charge grants one wood reward');
+assert.ok(singleTree.respawn>0,'exhausted tree enters cooldown');
+const woodAfterSingle=p.wood;
+for(let i=0;i<60;i++)update(.05);
+assert.equal(p.wood,woodAfterSingle,'depleted tree cannot reward twice during cooldown');
 // Long-running idle updates must not create invalid or unbounded game state.
 for(const e of enemies)e.dead=999;
 for(const n of nodes)n.respawn=999;
