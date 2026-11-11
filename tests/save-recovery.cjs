@@ -1,0 +1,58 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const source=fs.readFileSync('game.js','utf8').replace(/\}\)\(\);\s*$/,'globalThis.__saveTest={p,progression,save,get warning(){return storageWarning},get blocked(){return saveBlocked}};})();');
+const PRIMARY='trolltoll_web_v3',BACKUP='trolltoll_web_v3_backup',LEGACY='trolltoll_web_v2';
+const canvas={getContext:()=>new Proxy({},{get:(o,k)=>o[k]||(()=>{}),set:(o,k,v)=>(o[k]=v,true)}),addEventListener:()=>{},setPointerCapture:()=>{},dataset:{}};
+function boot(seed={},failWrite=null,failRead=null){
+ const map=new Map(Object.entries(seed));const calls=[];
+ const storage={getItem:k=>{if(k===failRead)throw Object.assign(Error('blocked'),{name:'SecurityError'});return map.get(k)||null},setItem:(k,v)=>{calls.push(k);if(k===failWrite)throw Object.assign(Error('quota'),{name:'QuotaExceededError'});map.set(k,v)}};
+ const context={document:{hidden:false,getElementById:()=>canvas,addEventListener:()=>{}},localStorage:storage,innerWidth:390,innerHeight:740,devicePixelRatio:1,performance:{now:()=>0},requestAnimationFrame:()=>{},setInterval:()=>{},addEventListener:()=>{},console:{warn:()=>{}},Math};
+ vm.runInNewContext(source,context);
+ return {map,calls,state:context.__saveTest};
+}
+function snap(revision=1,level=8){
+ return JSON.stringify({schemaVersion:3,revision,legacy:{level:12,atk:44,gold:125,forge:true},progression:{inventory:{enhancementStone:19,protectionStone:2,awakeningStone:0,evolutionStone:0,ancientWood:0},equipment:{mainWeapon:{enhancementLevel:level,highestEnhancementLevel:level,failuresByLevel:{'8':3}}},rewardPity:{normalKills:2,logging:0,mining:0,rareVein:0}}});
+}
+const normal=boot({[PRIMARY]:snap()});assert.equal(normal.state.progression.equipment.mainWeapon.enhancementLevel,8);
+normal.state.p.gold=777;assert.equal(normal.state.save(),true);
+assert.equal(JSON.parse(normal.map.get(BACKUP)).legacy.gold,777);
+assert.equal(JSON.parse(normal.map.get(PRIMARY)).revision,2);
+assert.equal(JSON.parse(normal.map.get(BACKUP)).progression.equipment.mainWeapon.enhancementLevel,8);
+assert.equal(normal.calls.slice(0,3).join(','),[BACKUP,PRIMARY,LEGACY].join(','));
+const broken=boot({[PRIMARY]:'{broken',[BACKUP]:snap(5,9),[LEGACY]:JSON.stringify({level:3})});
+assert.equal(broken.state.progression.equipment.mainWeapon.enhancementLevel,9);
+assert.equal(broken.state.warning,true);
+broken.state.save();assert.equal(JSON.parse(broken.map.get(PRIMARY)).revision,6);
+const newer=boot({[PRIMARY]:snap(2,4),[BACKUP]:snap(3,10)});
+assert.equal(newer.state.progression.equipment.mainWeapon.enhancementLevel,10,'newer backup wins after partial write');
+const primaryWriteFail=boot({[PRIMARY]:snap(2,8)},PRIMARY);
+primaryWriteFail.state.p.gold=999;
+assert.equal(primaryWriteFail.state.save(),false);
+assert.equal(JSON.parse(primaryWriteFail.map.get(PRIMARY)).revision,2);
+assert.equal(JSON.parse(primaryWriteFail.map.get(BACKUP)).legacy.gold,999);
+assert.equal(boot(Object.fromEntries(primaryWriteFail.map)).state.p.gold,999,'recover newer backup');
+const backupWriteFail=boot({[PRIMARY]:snap(2,8)},BACKUP);
+assert.equal(backupWriteFail.state.save(),false);
+assert.equal(JSON.parse(backupWriteFail.map.get(PRIMARY)).revision,2);
+assert.equal(backupWriteFail.calls.includes(PRIMARY),false,'never write primary without recovery copy');
+const legacyMirrorFail=boot({[PRIMARY]:snap(2,8)},LEGACY);
+assert.equal(legacyMirrorFail.state.save(),true);
+assert.equal(legacyMirrorFail.state.warning,true);
+assert.equal(JSON.parse(legacyMirrorFail.map.get(PRIMARY)).revision,3);
+const malformed=JSON.parse(snap());malformed.progression.equipment.mainWeapon.enhancementLevel=-1;
+const invalid=boot({[PRIMARY]:JSON.stringify(malformed),[LEGACY]:JSON.stringify({level:6})});
+assert.equal(invalid.state.blocked,true);
+assert.equal(invalid.state.p.level,6);
+assert.equal(invalid.state.save(),false);
+assert.equal(invalid.map.get(PRIMARY),JSON.stringify(malformed),'never overwrite corrupt primary when no valid full backup');
+const noSave=boot({[LEGACY]:JSON.stringify({level:7,gold:33})});
+assert.equal(noSave.state.p.level,7);
+assert.equal(noSave.state.save(),true);
+assert.equal(JSON.parse(noSave.map.get(PRIMARY)).legacy.gold,33);
+const noStorage=boot({[PRIMARY]:snap()},null,PRIMARY);
+assert.equal(noStorage.state.blocked,true);
+assert.equal(noStorage.state.save(),false);
+const bothMissing=boot();assert.equal(bothMissing.state.save(),true);
+console.log('v3 backup, corruption, partial-write, legacy and storage-denial tests passed');

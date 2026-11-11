@@ -60,3 +60,11 @@ The browser stores player position, stats, equipment flags, resources, boss clea
 **Review gate:** This document specifies the failure modes and an approval-dependent recovery contract, **not** a completed P0 runtime fix. Implement the policy and prove non-destructive migration before treating save-loss risk as resolved. Real-browser reload/background tests remain open.
 
 **Provenance:** observed behavior only; recovery policy remains unapproved.
+
+## 7. P0 Implementation Update (2026-11-11)
+
+The browser now uses `trolltoll_web_v3_backup` as a **full-fidelity recovery copy**. A save writes the complete v3 snapshot to backup, then primary, then the legacy v2 mirror. Snapshots carry monotonically increasing revisions for the current session; on load, the valid snapshot with the larger revision wins. A corrupt primary recovers from a valid backup without resetting enhancement. If both full-fidelity copies exist but are invalid, legacy data can be displayed but saving is blocked to avoid overwriting damaged v3 data. Storage access failures also block writes; all failures set a warning. A failed v2 mirror write no longer invalidates the successful full v3 save.
+
+**Compatibility:** Existing v3 saves without a backup still load; v2-only saves can migrate on the next successful save. Early v3 records without `progression` remain readable. No old storage keys are deleted. Validation checks the nested progression shape and nonnegative counters before using it as a recovery source.
+
+**Verified in CI:** `tests/save-recovery.cjs` injects malformed JSON, invalid nested progression, newer backup after partial primary failure, failed backup/primary/mirror writes, legacy-only migration, storage denial, and empty storage. `tests/browser-v3.cjs` checks recovery of enhancement after corrupt primary. **Not yet verified:** actual Android background/restart, browser quota eviction, interrupted writes across tabs, or a user-facing export/recovery UI. The previous proposed recovery contract remains a design reference; this section records the implemented subset. **Review:** pending independent re-review.

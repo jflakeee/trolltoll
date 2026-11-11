@@ -1,22 +1,44 @@
 (()=>{
 'use strict';
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),KEY='trolltoll_web_v2';
-const KEY_V3='trolltoll_web_v3';
-let old={},progressionSave=null,storageWarning=false;
+const KEY_V3='trolltoll_web_v3',KEY_BACKUP='trolltoll_web_v3_backup';
+let old={},progressionSave=null,storageWarning=false,saveRevision=0,saveBlocked=false;
+const plain=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+const safeSaveCount=v=>Number.isSafeInteger(v)&&v>=0;
+function validSnapshot(v){
+ if(!plain(v)||v.schemaVersion!==3||!plain(v.legacy))return false;
+ if(!safeSaveCount(v.revision||0))return false;
+ if(v.progression===undefined||v.progression===null)return true; // early v3 saves predate progression
+ const p=v.progression;
+ if(!plain(p)||!plain(p.inventory)||!plain(p.equipment)||!plain(p.equipment.mainWeapon)||!plain(p.rewardPity))return false;
+ const weapon=p.equipment.mainWeapon;
+ if(!safeSaveCount(weapon.enhancementLevel)||weapon.enhancementLevel>15||!safeSaveCount(weapon.highestEnhancementLevel)||weapon.highestEnhancementLevel>15||!plain(weapon.failuresByLevel))return false;
+ if(Object.entries(weapon.failuresByLevel).some(([k,n])=>!/^(0|[1-9]|1[0-4])$/.test(k)||!safeSaveCount(n)))return false;
+ return ['enhancementStone','protectionStone','awakeningStone','evolutionStone','ancientWood'].every(k=>safeSaveCount(p.inventory[k]))&&['normalKills','logging','mining','rareVein'].every(k=>safeSaveCount(p.rewardPity[k]));
+}
+function readSnapshot(key){
+ const raw=localStorage.getItem(key);
+ if(!raw)return {exists:false,value:null};
+ try{const value=JSON.parse(raw);return {exists:true,value:validSnapshot(value)?value:null}}catch(_){return {exists:true,value:null}}
+}
 try{
-  const rawV3=localStorage.getItem(KEY_V3);
-  const v3=rawV3?JSON.parse(rawV3):null;
-  if(v3&&v3.schemaVersion===3&&v3.legacy&&typeof v3.legacy==='object'&&!Array.isArray(v3.legacy)){
-    old=v3.legacy;
-    progressionSave=v3.progression;
-  }else{
-    old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('trolltoll_web_v1')||'{}');
-  }
-  if(!old||typeof old!=='object'||Array.isArray(old))old={};
+ const primary=readSnapshot(KEY_V3),backup=readSnapshot(KEY_BACKUP);
+ const selected=primary.value&&backup.value?(backup.value.revision>primary.value.revision?backup.value:primary.value):(primary.value||backup.value);
+ if(selected){
+  old=selected.legacy;progressionSave=selected.progression;saveRevision=selected.revision||0;
+  if(!primary.value||selected!==primary.value)storageWarning=true;
+ }else{
+  if(primary.exists||backup.exists){saveBlocked=true;storageWarning=true}
+  old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('trolltoll_web_v1')||'{}');
+ }
+ if(!plain(old))old={};
 }catch(e){
-  try{old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('trolltoll_web_v1')||'{}')}catch(_){old={}}
-  if(!old||typeof old!=='object'||Array.isArray(old))old={};
-  if(e.name==='SecurityError'||e.name==='QuotaExceededError')storageWarning=true;
+ // Invalid legacy JSON may initialize a fresh game when no full v3 save exists.
+ // Storage access denial still blocks writes to avoid destructive recovery.
+ if(e.name!=='SyntaxError')saveBlocked=true;
+ storageWarning=true;
+ try{old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('trolltoll_web_v1')||'{}')}catch(_){old={}}
+ if(!plain(old))old={};
 }
 const validCount=v=>Number.isSafeInteger(v)&&v>=0?v:0;
 const savedInv=progressionSave&&progressionSave.inventory||{};
@@ -71,11 +93,21 @@ function enhanceTop(){return h<550?100:Math.max(210,Math.min(h-180,craftTop()+55
 function enhanceLeft(){return h<550?10:w-174}
 function enhancePanelHeight(){return 134}
 function note(s){notice=s;noticeTimer=2}function effect(x,y,text,color='#ffe4a0'){fx.push({x,y,text,color,life:1.1});if(fx.length>24)fx.shift()}function burst(x,y,color){bursts.push({x,y,color,life:.3});if(bursts.length>20)bursts.shift()}function facilityPosition(kind){return kind==='bench'?{x:75,y:-45}:{x:120,y:-45}}
-function save(){try{
-  const legacy={x:p.x,y:p.y,level:p.level,xp:p.xp,atk:p.atk,def:p.def,hp:p.max,currentHp:Math.ceil(Math.max(1,p.hp)),kills:p.kills,gold:p.gold,wood:p.wood,stone:p.stone,iron:p.iron,workbench:p.workbench,forge:p.forge,pick:p.pick,axe:p.axe,blade:p.blade,club:p.club,armor:p.armor,relics:p.relics,relicBlade:p.relicBlade,bossKills:p.bossKills};
-  localStorage.setItem(KEY_V3,JSON.stringify({schemaVersion:3,revision:0,legacy,progression}));
-  localStorage.setItem(KEY,JSON.stringify(legacy));
-}catch(e){storageWarning=true;console.warn('저장 실패',e)}}
+function save(){
+ if(saveBlocked){storageWarning=true;return false}
+ const legacy={x:p.x,y:p.y,level:p.level,xp:p.xp,atk:p.atk,def:p.def,hp:p.max,currentHp:Math.ceil(Math.max(1,p.hp)),kills:p.kills,gold:p.gold,wood:p.wood,stone:p.stone,iron:p.iron,workbench:p.workbench,forge:p.forge,pick:p.pick,axe:p.axe,blade:p.blade,club:p.club,armor:p.armor,relics:p.relics,relicBlade:p.relicBlade,bossKills:p.bossKills};
+ const snapshot={schemaVersion:3,revision:saveRevision+1,legacy,progression};
+ try{
+  const encoded=JSON.stringify(snapshot);
+  // Commit the full-fidelity recovery copy first. If the primary write fails,
+  // the newer backup is selected on next launch. Never erase an older save.
+  localStorage.setItem(KEY_BACKUP,encoded);
+  localStorage.setItem(KEY_V3,encoded);
+  saveRevision=snapshot.revision;
+  try{localStorage.setItem(KEY,JSON.stringify(legacy))}catch(e){storageWarning=true;console.warn('구형 저장 미러 실패',e)}
+  return true;
+ }catch(e){storageWarning=true;console.warn('저장 실패',e);return false}
+}
 addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{last=performance.now();if(document.hidden){touch=null;keys.clear();save()}});addEventListener('blur',()=>{touch=null;keys.clear()});setInterval(save,5000);
 addEventListener('keydown',e=>{keys.add(e.key.toLowerCase());if(e.key.startsWith('Arrow'))e.preventDefault()});addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 function resize(){w=innerWidth;h=innerHeight;const d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(w*d);canvas.height=Math.round(h*d);ctx.setTransform(d,0,0,d,0,0)}addEventListener('resize',resize);resize();
