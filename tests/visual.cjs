@@ -163,6 +163,8 @@ const fs = require('node:fs');
     assert.ok(tinyScreen.nonBlack>tinyScreen.total*.1,'320px game must render visible non-black pixels');
     assert.ok(tinyScreen.scrollWidth<=tinyScreen.viewport,'320px page must not overflow horizontally');
     await page.screenshot({path:path.join(dir,'07b-320px-mobile.png')});
+    await page.touchscreen.tap(260,520); // Disable auto-move while checking UI-only taps.
+    assert.equal(await canvasState(),'false','UI layout test requires stationary player');
     // At phone widths, crafting must remain clickable both below the
     // expanded HUD and beside the compact HUD without starting movement.
     for(const width of [320,390]){
@@ -189,6 +191,7 @@ const fs = require('node:fs');
       await page.screenshot({path:path.join(dir,'07c-crafting-'+width+'px.png')});
     }
     await page.setViewportSize({width:360,height:800});
+    await page.touchscreen.tap(310,680); // Restore auto-move for following touch tests.
     await page.waitForTimeout(200);
     await verifyViewport('restored narrow');
     // Exercise real touchscreen taps (not mouse events) on the resized phone.
