@@ -163,6 +163,31 @@ const fs = require('node:fs');
     assert.ok(tinyScreen.nonBlack>tinyScreen.total*.1,'320px game must render visible non-black pixels');
     assert.ok(tinyScreen.scrollWidth<=tinyScreen.viewport,'320px page must not overflow horizontally');
     await page.screenshot({path:path.join(dir,'07b-320px-mobile.png')});
+    // At phone widths, crafting must remain clickable both below the
+    // expanded HUD and beside the compact HUD without starting movement.
+    for(const width of [320,390]){
+      await page.setViewportSize({width,height:640});
+      await page.waitForTimeout(150);
+      const beforeCraft=await position();
+      const x=width-82;
+      // Default HUD is expanded; its 190px panel ends at y=200.
+      await page.touchscreen.tap(x,225);
+      await page.waitForTimeout(80);
+      const expanded=await page.evaluate(({x})=>{
+        const c=document.querySelector('#game'),ctx=c.getContext('2d');
+        return Array.from(ctx.getImageData(x,265,1,1).data);
+      },{x});
+      assert.ok(expanded[3]>0,'crafting panel must render at '+width+'px');
+      await page.touchscreen.tap(x,225); // Close expanded crafting.
+      await page.touchscreen.tap(40,25); // Collapse HUD.
+      await page.touchscreen.tap(x,105); // Compact crafting toggle.
+      await page.touchscreen.tap(x,105); // Close.
+      await page.touchscreen.tap(40,25); // Restore expanded HUD.
+      const afterCraft=await position();
+      assert.equal(afterCraft.x,beforeCraft.x,'crafting and HUD taps must not move x at '+width+'px');
+      assert.equal(afterCraft.y,beforeCraft.y,'crafting and HUD taps must not move y at '+width+'px');
+      await page.screenshot({path:path.join(dir,'07c-crafting-'+width+'px.png')});
+    }
     await page.setViewportSize({width:360,height:800});
     await page.waitForTimeout(200);
     await verifyViewport('restored narrow');
