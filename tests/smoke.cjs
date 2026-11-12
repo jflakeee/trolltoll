@@ -62,10 +62,10 @@ vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'
 context.innerWidth=320;
 context.innerHeight=480;
 listeners.resize();
-canvasListeners.pointerdown({clientX:300,clientY:190,pointerId:2});
+canvasListeners.pointerdown({clientX:300,clientY:220,pointerId:2});
 frame(80);
 // Close the crafting overlay before testing movement gestures on its dismiss area.
-canvasListeners.pointerdown({clientX:300,clientY:190,pointerId:3});
+canvasListeners.pointerdown({clientX:300,clientY:220,pointerId:3});
 // Secondary fingers must not replace or release the active movement pointer.
 canvasListeners.pointerdown({clientX:100,clientY:300,pointerId:10});
 canvasListeners.pointermove({clientX:140,clientY:300,pointerId:10});
@@ -133,7 +133,7 @@ for(const [width,height,dpr] of [[320,568,1],[375,667,2],[390,844,3],[430,932,2]
 context.innerWidth=390;context.innerHeight=740;listeners.resize();
 listeners.pagehide();
 const beforeMenuTap=JSON.parse(storage.get('trolltoll_web_v2'));
-canvasListeners.pointerdown({clientX:350,clientY:205,pointerId:50});
+canvasListeners.pointerdown({clientX:350,clientY:220,pointerId:50});
 canvasListeners.pointermove({clientX:380,clientY:500,pointerId:50});
 frame(124);
 listeners.pagehide();
@@ -141,7 +141,7 @@ const afterMenuTap=JSON.parse(storage.get('trolltoll_web_v2'));
 assert.equal(afterMenuTap.x,beforeMenuTap.x,'craft menu tap must not move player horizontally');
 assert.equal(afterMenuTap.y,beforeMenuTap.y,'craft menu tap must not move player vertically');
 // A crafting item tap must also be consumed, even if materials are insufficient.
-canvasListeners.pointerdown({clientX:350,clientY:255,pointerId:51});
+canvasListeners.pointerdown({clientX:350,clientY:270,pointerId:51});
 canvasListeners.pointermove({clientX:380,clientY:500,pointerId:51});
 frame(128);
 listeners.pagehide();
