@@ -167,6 +167,15 @@ const fs = require('node:fs');
     assert.equal(await canvasState(),'false','UI layout test requires stationary player');
     // At phone widths, crafting must remain clickable both below the
     // expanded HUD and beside the compact HUD without starting movement.
+    // Observe the actual drawn toggle label rather than an opaque background pixel.
+    await page.evaluate(()=>{
+      const ctx=document.querySelector('#game').getContext('2d');
+      const original=ctx.fillText;
+      ctx.fillText=function(value,...args){
+        if(value==='제작·건설 닫기'||value==='제작·건설 열기')window.__craftLabel=value;
+        return original.call(this,value,...args);
+      };
+    });
     for(const width of [320,390]){
       await page.setViewportSize({width,height:640});
       await page.waitForTimeout(150);
@@ -174,17 +183,17 @@ const fs = require('node:fs');
       const x=width-82;
       // Default HUD is expanded; its 190px panel ends at y=200.
       await page.touchscreen.tap(x,225);
-      await page.waitForTimeout(80);
-      const expanded=await page.evaluate(({x})=>{
-        const c=document.querySelector('#game'),ctx=c.getContext('2d');
-        return Array.from(ctx.getImageData(x,265,1,1).data);
-      },{x});
-      assert.ok(expanded[3]>0,'crafting panel must render at '+width+'px');
-      await page.touchscreen.tap(x,225); // Close expanded crafting.
-      await page.touchscreen.tap(40,25); // Collapse HUD.
-      await page.touchscreen.tap(x,105); // Compact crafting toggle.
-      await page.touchscreen.tap(x,105); // Close.
-      await page.touchscreen.tap(40,25); // Restore expanded HUD.
+      await page.waitForFunction(()=>window.__craftLabel==='제작·건설 닫기');
+      await page.screenshot({path:path.join(dir,'07c-crafting-open-'+width+'px.png')});
+      await page.touchscreen.tap(x,225);
+      await page.waitForFunction(()=>window.__craftLabel==='제작·건설 열기');
+      await page.touchscreen.tap(40,25);
+      await page.touchscreen.tap(x,105);
+      await page.waitForFunction(()=>window.__craftLabel==='제작·건설 닫기');
+      await page.screenshot({path:path.join(dir,'07c-crafting-compact-'+width+'px.png')});
+      await page.touchscreen.tap(x,105);
+      await page.waitForFunction(()=>window.__craftLabel==='제작·건설 열기');
+      await page.touchscreen.tap(40,25);
       const afterCraft=await position();
       assert.equal(afterCraft.x,beforeCraft.x,'crafting and HUD taps must not move x at '+width+'px');
       assert.equal(afterCraft.y,beforeCraft.y,'crafting and HUD taps must not move y at '+width+'px');
