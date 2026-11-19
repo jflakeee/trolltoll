@@ -100,6 +100,21 @@ function node(s,x=45,y=0){const n=s.nodes[0];Object.assign(n,{kind:'tree',x,y,st
  s.setMode('combat');
  assert.equal(s.autoMoveTarget().id,e.id,'combat preference must override cached node');
 }
+// Simulate elapsed game time across depletion and natural respawn cycles.
+{
+ const {s,storage}=boot(),n=node(s,20);
+ s.setMode('gather');s.setAuto(true);
+ const wood=s.p.wood;
+ for(let i=0;i<600;i++){
+   s.update(.1);
+   assert.ok(Number.isFinite(s.p.x)&&Number.isFinite(s.p.y),'position remains finite');
+   assert.ok(n.stock>=0&&n.stock<=3,'node stock stays bounded');
+ }
+ const gained=s.p.wood-wood;
+ assert.ok(gained>=18,'60 simulated seconds must harvest multiple respawn cycles');
+ assert.equal(gained%3,0,'wood rewards must be whole harvest grants');
+ assert.equal(JSON.parse(storage.get('trolltoll_web_v3')).legacy.wood,s.p.wood,'harvest rewards persist');
+}
 // Locked zone excludes remote targets; selected target beyond range does not teleport or attack.
 {
  const {s}=boot(),e=enemy(s,400,0);
