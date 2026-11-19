@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const source=fs.readFileSync('game.js','utf8').replace(/\}\)\(\);\s*$/, 'globalThis.__probe={p,progression,attemptEnhancement,enhanceTop,enhanceLeft,enhancePanelHeight,compactHUD};})();');
+const source=fs.readFileSync('game.js','utf8').replace(/\}\)\(\);\s*$/, 'globalThis.__probe={p,progression,attemptEnhancement,enhanceTop,enhanceLeft,enhancePanelHeight,compactHUD,craftItemsTop,craftPageSize};})();');
 const storage=new Map(),handlers={},windowHandlers={};
 const context2d=new Proxy({}, {get:(o,k)=>o[k]||(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas={getContext:()=>context2d,addEventListener:(event,fn)=>handlers[event]=fn,setPointerCapture:()=>{},dataset:{}};
@@ -66,4 +66,11 @@ ctx.innerWidth=390;ctx.innerHeight=740;windowHandlers.resize();
 assert.equal(compact(),true,'rotation preserves collapsed portrait preference');
 tapHUD();
 assert.equal(compact(),false,'portrait HUD can expand again');
+// Reserve the pagination hit area before the bottom auto-move controls.
+for(const [width,height] of [[320,480],[320,550],[320,568],[360,640],[390,740],[640,320],[800,360]]){
+ ctx.innerWidth=width;ctx.innerHeight=height;windowHandlers.resize();
+ const {craftItemsTop,craftPageSize}=ctx.__probe;
+ assert.ok(craftItemsTop()+craftPageSize()*46+38<=height-145,
+   'craft pagination clears auto-move hit area at '+width+'x'+height);
+}
 console.log('mobile enhancement controls and protection tests passed');
