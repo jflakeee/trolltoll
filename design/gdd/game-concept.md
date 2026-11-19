@@ -71,3 +71,16 @@
 All eight permanent construction/equipment recipes together require wood 58, stone 57, iron 40 and relics 2, excluding enhancements. Boss HP/attack: 420/12, 900/20, 1800/32. Every kill grants 3 gold; first boss clears additionally grant one relic, +5 attack, +3 defense and +20 maximum HP. The current progression test directly injects resources and invokes gain(), so it is a functional unlock test rather than a pacing measurement.
 
 The no-failure +0 to +15 enhancement attempt cost totals 24,150 gold, 264 iron and 109 enhancement stones, excluding protection and stone crafting. At 3 gold per kill this is equivalent to 8,050 kills before starting balances or other gold costs. Actual runtime pacing and probability-adjusted expenditure remain to be measured. Do not tune prices or rewards before collecting those measurements.
+
+### P3-01 measured automatic pacing baseline
+
+CI run 44629123621, commit b41a5da88aa00576c38b197c0f8ddee51c2ec69d, seed 123456, 0.1-second update steps, automatic movement and affordable permanent crafting, no enhancement attempts.
+
+| Minutes | Kills | Level | ATK | DEF | Max HP | Gold | Wood | Stone | Iron | Boss clears |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+|5|14|6|21|13|161|42|37|27|0|1|
+|15|33|10|21|13|211|99|214|183|0|1|
+|30|62|14|21|13|281|186|475|415|0|1|
+|60|120|20|21|13|415|360|997|881|0|1|
+
+Observed stagnation: ATK/DEF flat after minute 5; boss1 never defeated; no iron; excessive wood/stone accumulation. Nearest-target selection is a candidate cause, not yet proven. Compare combat-priority and goal-directed policies over identical seeds before changing gameplay. Single-seed VM simulation is not physical-device play or a human pacing measurement. Both deployment and mobile Chromium workflows passed for the baseline commit.
