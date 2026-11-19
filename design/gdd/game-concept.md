@@ -65,3 +65,9 @@
 3. Audit enhancement costs, failure/protection/pity and permanent growth against region difficulty. Preserve v3 saves and current rules until evidence supports a change.
 4. Review onboarding, feedback and one-handed accessibility; avoid adding content before baseline analysis.
 5. Propose measured tuning with regression criteria and separate physical-device acceptance.
+
+### P3-01 static economy baseline (source audit)
+
+All eight permanent construction/equipment recipes together require wood 58, stone 57, iron 40 and relics 2, excluding enhancements. Boss HP/attack: 420/12, 900/20, 1800/32. Every kill grants 3 gold; first boss clears additionally grant one relic, +5 attack, +3 defense and +20 maximum HP. The current progression test directly injects resources and invokes gain(), so it is a functional unlock test rather than a pacing measurement.
+
+The no-failure +0 to +15 enhancement attempt cost totals 24,150 gold, 264 iron and 109 enhancement stones, excluding protection and stone crafting. At 3 gold per kill this is equivalent to 8,050 kills before starting balances or other gold costs. Actual runtime pacing and probability-adjusted expenditure remain to be measured. Do not tune prices or rewards before collecting those measurements.
