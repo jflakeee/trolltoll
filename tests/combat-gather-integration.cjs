@@ -134,6 +134,23 @@ function node(s,x=45,y=0){const n=s.nodes[0];Object.assign(n,{kind:'tree',x,y,st
  assert.equal(saved.gold,s.p.gold);
  assert.equal(saved.kills,s.p.kills);
 }
+// Death saves permanent progress; auto-navigation resumes after revival.
+{
+ const {s,storage}=boot(),e=enemy(s,20);
+ Object.assign(e,{hp:5,health:5,stat:'atk',xp:0,boss:false});
+ s.setMode('combat');s.setAuto(true);s.update(.1);
+ const growth={atk:s.p.atk,gold:s.p.gold,kills:s.p.kills};
+ s.p.x=80;s.p.y=60;s.p.hp=0;
+ s.update(.1);
+ assert.equal(s.p.hp,s.p.max,'revival restores health');
+ assert.equal(s.p.x,0);assert.equal(s.p.y,0);
+ for(const key of Object.keys(growth)){
+   assert.equal(s.p[key],growth[key],'revival preserves '+key);
+   assert.equal(JSON.parse(storage.get('trolltoll_web_v3')).legacy[key],growth[key]);
+ }
+ for(let i=0;i<300;i++)s.update(.1);
+ assert.ok(s.p.kills>growth.kills,'automatic combat resumes after revival');
+}
 // Locked zone excludes remote targets; selected target beyond range does not teleport or attack.
 {
  const {s}=boot(),e=enemy(s,400,0);
