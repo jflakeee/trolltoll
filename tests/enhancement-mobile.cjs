@@ -29,6 +29,15 @@ handlers.pointerdown({clientX:x+124,clientY:y,pointerId:4});
 assert.equal(weapon.enhancementLevel,7,'unprotected failure downgrades');
 assert.equal(progression.inventory.protectionStone,1,'unprotected attempt preserves stone');
 assert.equal(JSON.parse(storage.get('trolltoll_web_v3')).progression.equipment.mainWeapon.enhancementLevel,7);
+// Portrait enhancement panel must not intercept either bottom-right control.
+for(const [width,height] of [[320,640],[360,800],[390,740]]){
+  ctx.innerWidth=width;ctx.innerHeight=height;
+  windowHandlers.resize();
+  assert.ok(enhanceTop()+enhancePanelHeight()<=height-145,
+    'enhancement panel must stay above auto-move hit area at '+width+'x'+height);
+  assert.ok(ctx.__probe.enhanceLeft()>=0&&ctx.__probe.enhanceLeft()+164<=width,
+    'enhancement panel must stay within viewport');
+}
 // Re-run the same touch path in short landscape dimensions.
 ctx.innerWidth=640;ctx.innerHeight=320;
 windowHandlers.resize();
