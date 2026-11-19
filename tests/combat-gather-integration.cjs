@@ -4,8 +4,8 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync('game.js','utf8').replace(/\}\)\(\);\s*$/,'globalThis.__test={p,enemies,nodes,progression,update,autoMoveTarget,keys,choose:id=>{selected=id},setMode:v=>{mode=v},setAuto:v=>{autoMove=v},getState:()=>({selected,work,autoTargetId}),getMode:()=>mode};})();');
 function boot(){
- const storage=new Map(),ctx2d=new Proxy({}, {get:(o,k)=>o[k]||(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
- const canvas={getContext:()=>ctx2d,addEventListener:()=>{},setPointerCapture:()=>{},dataset:{}};
+ const handlers={},storage=new Map(),ctx2d=new Proxy({}, {get:(o,k)=>o[k]||(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
+ const canvas={getContext:()=>ctx2d,addEventListener:(event,fn)=>handlers[event]=fn,setPointerCapture:()=>{},dataset:{}};
  const math=Object.create(Math);math.random=()=>.999;
  const context={document:{hidden:false,getElementById:()=>canvas,addEventListener:()=>{}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},innerWidth:390,innerHeight:740,devicePixelRatio:1,performance:{now:()=>0},requestAnimationFrame:()=>{},setInterval:()=>{},addEventListener:()=>{},console:{warn:()=>{}},Math:math};
  vm.runInNewContext(source,context);
@@ -13,7 +13,7 @@ function boot(){
  for(const e of s.enemies)e.dead=1000;
  for(const n of s.nodes)n.respawn=1000;
  s.p.x=0;s.p.y=0;s.p.hp=1000;s.p.max=1000;s.p.atk=10;s.p.def=999;s.p.cd=0;
- return {s,storage};
+ return {s,storage,handlers,canvas};
 }
 function enemy(s,x=40,y=0){const e=s.enemies[0];Object.assign(e,{x,y,dead:0,health:300,hp:300,cd:99});return e}
 function node(s,x=45,y=0){const n=s.nodes[0];Object.assign(n,{kind:'tree',x,y,stock:3,respawn:0});return n}
@@ -56,6 +56,32 @@ function node(s,x=45,y=0){const n=s.nodes[0];Object.assign(n,{kind:'tree',x,y,st
  s.keys.delete('a');
  const afterManual=s.p.x;s.update(.1);assert.ok(s.p.x>afterManual,'auto move resumes toward enemy');
  assert.equal(s.getState().autoTargetId,e.id);
+}
+// Real action-mode button transitions discard stale selection and partial work.
+{
+ const {s,handlers,canvas}=boot(),e=enemy(s,42),n=node(s,30);
+ const tap=(x,y)=>handlers.pointerdown({clientX:x,clientY:y,pointerId:1});
+ s.setMode('gather');s.choose(n.id);s.update(.1);
+ assert.equal(s.getState().work.id,n.id);
+ const wood=s.p.wood;
+ tap(340,690); // gather -> auto
+ assert.equal(canvas.dataset.actionMode,'auto');
+ assert.equal(s.getState().work,null);
+ assert.equal(s.getState().selected,null);
+ tap(340,690); // auto -> combat
+ assert.equal(canvas.dataset.actionMode,'combat');
+ s.p.cd=0;s.update(.1);
+ assert.equal(e.health,290);
+ assert.equal(n.stock,3);
+ assert.equal(s.p.wood,wood,'cancelled gather must not grant materials');
+ tap(340,620); // automatic movement on
+ assert.equal(canvas.dataset.autoMove,'true');
+ s.update(.1);
+ assert.equal(s.getState().autoTargetId,e.id);
+ tap(340,620); // automatic movement off
+ assert.equal(canvas.dataset.autoMove,'false');
+ assert.equal(s.getState().autoTargetId,null);
+ assert.equal(s.getState().selected,null);
 }
 // Locked zone excludes remote targets; selected target beyond range does not teleport or attack.
 {
