@@ -83,6 +83,23 @@ function node(s,x=45,y=0){const n=s.nodes[0];Object.assign(n,{kind:'tree',x,y,st
  assert.equal(s.getState().autoTargetId,null);
  assert.equal(s.getState().selected,null);
 }
+// Existing target hysteresis must never retain exhausted or defeated targets.
+{
+ const {s}=boot(),e=enemy(s,60),n=node(s,30);
+ s.setMode('gather');s.setAuto(true);
+ assert.equal(s.autoMoveTarget().id,n.id);
+ n.respawn=12;n.stock=0;
+ assert.equal(s.autoMoveTarget().id,e.id,'exhausted node must be abandoned');
+ e.dead=4;
+ assert.equal(s.autoMoveTarget(),null,'no live targets must clear navigation');
+ assert.equal(s.getState().autoTargetId,null);
+ e.dead=0;e.health=e.hp;
+ assert.equal(s.autoMoveTarget().id,e.id,'respawned enemy must be eligible');
+ n.respawn=0;n.stock=3;
+ assert.equal(s.autoMoveTarget().id,n.id,'respawned preferred node must override fallback');
+ s.setMode('combat');
+ assert.equal(s.autoMoveTarget().id,e.id,'combat preference must override cached node');
+}
 // Locked zone excludes remote targets; selected target beyond range does not teleport or attack.
 {
  const {s}=boot(),e=enemy(s,400,0);
