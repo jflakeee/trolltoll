@@ -115,6 +115,25 @@ function node(s,x=45,y=0){const n=s.nodes[0];Object.assign(n,{kind:'tree',x,y,st
  assert.equal(gained%3,0,'wood rewards must be whole harvest grants');
  assert.equal(JSON.parse(storage.get('trolltoll_web_v3')).legacy.wood,s.p.wood,'harvest rewards persist');
 }
+// Natural enemy respawn and repeated kills must award growth exactly once.
+{
+ const {s,storage}=boot(),e=enemy(s,40);
+ Object.assign(e,{hp:5,health:5,stat:'atk',xp:0,boss:false});
+ const before={kills:s.p.kills,atk:s.p.atk,gold:s.p.gold};
+ s.setMode('combat');s.setAuto(true);
+ for(let i=0;i<900;i++){
+   s.update(.1);
+   assert.ok(Number.isFinite(s.p.x)&&Number.isFinite(s.p.y),'combat position remains finite');
+ }
+ const kills=s.p.kills-before.kills;
+ assert.ok(kills>=3,'90 simulated seconds must allow repeated natural combat respawns');
+ assert.equal(s.p.atk-before.atk,kills,'one permanent attack increment per kill');
+ assert.equal(s.p.gold-before.gold,kills*3,'one gold reward per kill');
+ const saved=JSON.parse(storage.get('trolltoll_web_v3')).legacy;
+ assert.equal(saved.atk,s.p.atk);
+ assert.equal(saved.gold,s.p.gold);
+ assert.equal(saved.kills,s.p.kills);
+}
 // Locked zone excludes remote targets; selected target beyond range does not teleport or attack.
 {
  const {s}=boot(),e=enemy(s,400,0);
