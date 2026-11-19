@@ -163,9 +163,10 @@ function node(s,x=45,y=0){const n=s.nodes[0];Object.assign(n,{kind:'tree',x,y,st
  assert.ok(saved.legacy.kills>0);
  assert.ok(saved.legacy.wood>0);
  const restored=boot(storage,true).s;
- for(const key of ['atk','def','max','gold','kills','wood','stone','iron','level','xp']){
+ for(const key of ['atk','def','gold','kills','wood','stone','iron','level','xp']){
    assert.equal(restored.p[key],saved.legacy[key],'restart restores '+key);
  }
+ assert.equal(restored.p.max,saved.legacy.hp,'restart restores maximum HP from legacy hp');
  assert.deepEqual(JSON.parse(JSON.stringify(restored.progression.inventory)),saved.progression.inventory);
 }
 // Locked zone excludes remote targets; selected target beyond range does not teleport or attack.
