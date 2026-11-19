@@ -51,3 +51,17 @@
 - Target frame-rate and performance budgets on low-end Android devices.
 - Final game economy and enhancement balancing.
 - UX acceptance criteria for one-handed play and accessibility.
+
+## P2 verification checkpoint / P3 proposed audit
+
+- P2 automated regression and Pages deployment: passed at b4f9b6921c9cf354e867380695aa0f1c70b778b1 (run 44628549071).
+- Mobile Chromium workflow: passed (run 44628549282).
+- Physical phone playthrough, human screenshot review and Android packaging remain unverified. Final GDD approval is withheld.
+
+### P3 audit order (proposed, not approved balance changes)
+
+1. Establish reproducible new-save progression baselines through all three bosses: elapsed simulated time, kills, resource costs, unlocks and equipment.
+2. Compare manual and automatic play for bottlenecks, reward cadence and idle fallback behavior.
+3. Audit enhancement costs, failure/protection/pity and permanent growth against region difficulty. Preserve v3 saves and current rules until evidence supports a change.
+4. Review onboarding, feedback and one-handed accessibility; avoid adding content before baseline analysis.
+5. Propose measured tuning with regression criteria and separate physical-device acceptance.
