@@ -3,8 +3,8 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync('game.js','utf8').replace(/\}\)\(\);\s*$/,'globalThis.__test={p,enemies,nodes,progression,update,autoMoveTarget,keys,choose:id=>{selected=id},setMode:v=>{mode=v},setAuto:v=>{autoMove=v},getState:()=>({selected,work,autoTargetId}),getMode:()=>mode};})();');
-function boot(){
- const handlers={},storage=new Map(),ctx2d=new Proxy({}, {get:(o,k)=>o[k]||(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
+function boot(storage=new Map(),restore=false){
+ const handlers={},ctx2d=new Proxy({}, {get:(o,k)=>o[k]||(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
  const canvas={getContext:()=>ctx2d,addEventListener:(event,fn)=>handlers[event]=fn,setPointerCapture:()=>{},dataset:{}};
  const math=Object.create(Math);math.random=()=>.999;
  const context={document:{hidden:false,getElementById:()=>canvas,addEventListener:()=>{}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},innerWidth:390,innerHeight:740,devicePixelRatio:1,performance:{now:()=>0},requestAnimationFrame:()=>{},setInterval:()=>{},addEventListener:()=>{},console:{warn:()=>{}},Math:math};
@@ -12,7 +12,7 @@ function boot(){
  const s=context.__test;
  for(const e of s.enemies)e.dead=1000;
  for(const n of s.nodes)n.respawn=1000;
- s.p.x=0;s.p.y=0;s.p.hp=1000;s.p.max=1000;s.p.atk=10;s.p.def=999;s.p.cd=0;
+ if(!restore){s.p.x=0;s.p.y=0;s.p.hp=1000;s.p.max=1000;s.p.atk=10;s.p.def=999;s.p.cd=0;}
  return {s,storage,handlers,canvas};
 }
 function enemy(s,x=40,y=0){const e=s.enemies[0];Object.assign(e,{x,y,dead:0,health:300,hp:300,cd:99});return e}
@@ -150,6 +150,23 @@ function node(s,x=45,y=0){const n=s.nodes[0];Object.assign(n,{kind:'tree',x,y,st
  }
  for(let i=0;i<300;i++)s.update(.1);
  assert.ok(s.p.kills>growth.kills,'automatic combat resumes after revival');
+}
+// Restart the runtime using the same storage after mixed automatic play.
+{
+ const {s,storage}=boot(),e=enemy(s,40),n=node(s,20);
+ Object.assign(e,{hp:5,health:5,stat:'atk',xp:0,boss:false});
+ s.setMode('combat');s.setAuto(true);
+ for(let i=0;i<300;i++)s.update(.1);
+ s.setMode('gather');s.choose(null);
+ for(let i=0;i<300;i++)s.update(.1);
+ const saved=JSON.parse(storage.get('trolltoll_web_v3'));
+ assert.ok(saved.legacy.kills>0);
+ assert.ok(saved.legacy.wood>0);
+ const restored=boot(storage,true).s;
+ for(const key of ['atk','def','max','gold','kills','wood','stone','iron','level','xp']){
+   assert.equal(restored.p[key],saved.legacy[key],'restart restores '+key);
+ }
+ assert.deepEqual(JSON.parse(JSON.stringify(restored.progression.inventory)),saved.progression.inventory);
 }
 // Locked zone excludes remote targets; selected target beyond range does not teleport or attack.
 {
