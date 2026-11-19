@@ -62,10 +62,10 @@ vm.runInNewContext(fs.readFileSync('game.js','utf8'),context,{filename:'game.js'
 context.innerWidth=320;
 context.innerHeight=480;
 listeners.resize();
-canvasListeners.pointerdown({clientX:300,clientY:220,pointerId:2});
+canvasListeners.pointerdown({clientX:300,clientY:110,pointerId:2});
 frame(80);
 // Close the crafting overlay before testing movement gestures on its dismiss area.
-canvasListeners.pointerdown({clientX:300,clientY:220,pointerId:3});
+canvasListeners.pointerdown({clientX:300,clientY:110,pointerId:3});
 // Secondary fingers must not replace or release the active movement pointer.
 canvasListeners.pointerdown({clientX:100,clientY:300,pointerId:10});
 canvasListeners.pointermove({clientX:140,clientY:300,pointerId:10});

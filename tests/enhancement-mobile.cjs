@@ -47,6 +47,10 @@ assert.equal(enhanceTop(),100,'short landscape places panel above bottom control
 handlers.pointerdown({clientX:shortX+124,clientY:shortY,pointerId:5});
 assert.equal(weapon.enhancementLevel,6,'landscape enhancement touch must work');
 // Rotating to a short landscape must clear the HUD without losing portrait preference.
+ctx.innerWidth=320;ctx.innerHeight=480;windowHandlers.resize();
+assert.equal(ctx.__probe.compactHUD(),true,'short portrait forces compact HUD');
+assert.ok(enhanceTop()>=76,'short portrait enhancement clears HUD');
+ctx.innerWidth=640;ctx.innerHeight=320;windowHandlers.resize();
 const tapHUD=()=>handlers.pointerdown({clientX:40,clientY:25,pointerId:6});
 const compact=ctx.__probe.compactHUD;
 assert.equal(compact(),true,'short landscape forces compact HUD');
