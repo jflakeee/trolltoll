@@ -37,6 +37,8 @@ for(let tick=1;tick<=36000;tick++){
     assert.ok(bossFirstClear.boss0>=30,'first boss should require preparation');
     assert.ok(bossFirstClear.boss1>bossFirstClear.boss0,'second boss must follow the first');
     assert.ok(bossFirstClear.boss2>bossFirstClear.boss1,'third boss must follow the second');
+    assert.ok(bossFirstClear.boss2>=300,'final boss should not fall in the first five minutes');
+    assert.ok(bossFirstClear.boss2<=1800,'automatic progression should not stall for over thirty minutes');
     console.log('P3 boss first clears '+JSON.stringify(bossFirstClear));
    }
    assert.ok([p.x,p.y,p.atk,p.def,p.hp,p.gold].every(Number.isFinite));
