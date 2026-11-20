@@ -164,6 +164,10 @@ function autoGoalTarget(available){
   }
   const boss=nextBoss();
   if(boss&&available.includes(boss)&&(!recipe||Object.entries(recipe).every(([resource,amount])=>p[resource]>=amount)))return boss;
+  if(!boss&&!recipe){
+    const enemies=available.filter(o=>o.kind==='enemy'&&!o.boss);
+    if(enemies.length)return enemies.reduce((best,o)=>!best||dist(o)<dist(best)?o:best,null);
+  }
   return null;
 }
 function autoMoveTarget(){const available=allTargets().filter(o=>Math.hypot(o.x,o.y)<=zoneLimit()-8);if(!available.length){autoTargetId=null;return null}const goal=autoGoalTarget(available);if(goal){autoTargetId=goal.id;return goal}const preferred=available.filter(o=>mode==='combat'?o.kind==='enemy':mode==='gather'?o.kind!=='enemy':true);const pool=preferred.length?preferred:available;const current=pool.find(o=>o.id===autoTargetId);const nearest=pool.reduce((best,o)=>!best||dist(o)<dist(best)?o:best,null);const target=current&&dist(current)<=dist(nearest)+65?current:nearest;autoTargetId=target.id;return target}
