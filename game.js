@@ -165,7 +165,7 @@ function autoGoalTarget(available){
   const boss=nextBoss();
   if(boss&&available.includes(boss)&&(!recipe||Object.entries(recipe).every(([resource,amount])=>p[resource]>=amount))){
     // Prepare for the next boss through ordinary combat instead of rushing all bosses.
-    const required={boss0:{atk:20,def:9},boss1:{atk:32,def:16},boss2:{atk:48,def:24}}[boss.id];
+    const required={boss0:{atk:24,def:12},boss1:{atk:45,def:22},boss2:{atk:75,def:35}}[boss.id];
     if(!required||p.atk>=required.atk&&p.def>=required.def)return boss;
     const enemies=available.filter(o=>o.kind==='enemy'&&!o.boss);
     if(enemies.length){
