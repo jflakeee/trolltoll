@@ -5,7 +5,7 @@ const source=fs.readFileSync('game.js','utf8').trimEnd();
 assert.ok(source.endsWith('})();'));
 assert.match(source,/강타 준비 · 범위 밖으로 회피!/,'boss slam must show dodge instructions');
 assert.match(source,/회피 성공!/,'successful boss slam evasion must give feedback');
-const dragMovement=vm.runInNewContext(source.match(/function dragMovement\(tx,ty\)\{[^}]+\}\}/)[0]+';dragMovement');
+const dragMovement=vm.runInNewContext(source.slice(source.indexOf('function dragMovement('),source.indexOf('function dist('))+';dragMovement');
 assert.strictEqual(dragMovement(8,0).x,0,'small touches should remain within the drag deadzone');
 assert.ok(dragMovement(24,0).x>.7,'short mobile drags should respond quickly');
 assert.strictEqual(dragMovement(32,0).x,1,'moderate drags should reach full speed');
