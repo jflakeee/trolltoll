@@ -5,6 +5,14 @@ const source=fs.readFileSync('game.js','utf8').trimEnd();
 assert.ok(source.endsWith('})();'));
 assert.match(source,/강타 준비 · 범위 밖으로 회피!/,'boss slam must show dodge instructions');
 assert.match(source,/회피 성공!/,'successful boss slam evasion must give feedback');
+assert.match(source,/ctx\.ellipse\(q\.x,q\.y,warning\.x,warning\.y/,'boss warning must use projected radii');
+const warningRadii=vm.runInNewContext(source.match(/function bossWarningRadii\(radius\)\{[^}]+\}\}/)[0]+';bossWarningRadii');
+for(const radius of [85,105,125]){
+ const projected=warningRadii(radius);
+ assert.ok(Math.abs(projected.x-radius*.7*Math.SQRT2)<1e-9);
+ assert.ok(Math.abs(projected.y-radius*.35*Math.SQRT2)<1e-9);
+}
+
 const canvasContext=new Proxy({}, {get:(target,key)=>target[key]||(()=>{}),set:(target,key,value)=>(target[key]=value,true)});
 for(const policy of ['auto','combat','gather']){
 const store=new Map();
