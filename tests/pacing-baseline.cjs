@@ -23,6 +23,14 @@ for(let tick=1;tick<=36000;tick++){
   for(const b of buttons)if(!['enhancementStone','protectionStone'].includes(b.id)&&b.show()&&b.enabled())b.act();
   const time=tick/10;
   if(milestones.has(time)){
+   if(policy==='auto'&&time===300){
+    assert.ok(p.bossKills.includes('boss1'),'goal-directed auto should unlock the mine within five simulated minutes');
+    assert.ok(p.iron>=0,'mine resources remain nonnegative');
+   }
+   if(policy==='auto'&&time===3600){
+    assert.ok(p.bossKills.includes('boss2'),'goal-directed auto should eventually clear the third boss');
+    assert.equal(p.relicBlade,true,'goal-directed auto should complete the guardian blade');
+   }
    assert.ok([p.x,p.y,p.atk,p.def,p.hp,p.gold].every(Number.isFinite));
    assert.ok([p.wood,p.stone,p.iron,p.gold].every(n=>n>=0));
    console.log('P3 baseline '+JSON.stringify({policy,seconds:time,kills:p.kills,level:p.level,atk:p.atk,def:p.def,maxHp:p.max,gold:p.gold,wood:p.wood,stone:p.stone,iron:p.iron,bosses:p.bossKills.slice(),zone:zoneLimit(),gear:buttons.filter(b=>!['enhancementStone','protectionStone'].includes(b.id)&&p[b.id==='bench'?'workbench':b.id]).map(b=>b.id)}));
