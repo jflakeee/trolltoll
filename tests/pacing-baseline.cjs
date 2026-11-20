@@ -3,6 +3,8 @@ const vm=require('node:vm');
 const assert=require('node:assert/strict');
 const source=fs.readFileSync('game.js','utf8').trimEnd();
 assert.ok(source.endsWith('})();'));
+assert.match(source,/강타 준비 · 범위 밖으로 회피!/,'boss slam must show dodge instructions');
+assert.match(source,/회피 성공!/,'successful boss slam evasion must give feedback');
 const canvasContext=new Proxy({}, {get:(target,key)=>target[key]||(()=>{}),set:(target,key,value)=>(target[key]=value,true)});
 for(const policy of ['auto','combat','gather']){
 const store=new Map();
