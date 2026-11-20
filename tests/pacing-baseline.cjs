@@ -5,6 +5,11 @@ const source=fs.readFileSync('game.js','utf8').trimEnd();
 assert.ok(source.endsWith('})();'));
 assert.match(source,/강타 준비 · 범위 밖으로 회피!/,'boss slam must show dodge instructions');
 assert.match(source,/회피 성공!/,'successful boss slam evasion must give feedback');
+const dragMovement=vm.runInNewContext(source.match(/function dragMovement\(tx,ty\)\{[^}]+\}\}/)[0]+';dragMovement');
+assert.strictEqual(dragMovement(8,0).x,0,'small touches should remain within the drag deadzone');
+assert.ok(dragMovement(24,0).x>.7,'short mobile drags should respond quickly');
+assert.strictEqual(dragMovement(32,0).x,1,'moderate drags should reach full speed');
+assert.ok(Math.abs(Math.hypot(...Object.values(dragMovement(120,120)))-1)<1e-9,'large diagonal drags should remain speed capped');
 assert.match(source,/ctx\.ellipse\(q\.x,q\.y,warning\.x,warning\.y/,'boss warning must use projected radii');
 const warningRadii=vm.runInNewContext(source.match(/function bossWarningRadii\(radius\)\{[^}]+\}\}/)[0]+';bossWarningRadii');
 for(const radius of [85,105,125]){
