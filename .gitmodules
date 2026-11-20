@@ -1,0 +1,12 @@
+[submodule "tools/agent-sources/awesome-gamedev-agent-skills"]
+	path = tools/agent-sources/awesome-gamedev-agent-skills
+	url = https://github.com/gamedev-skills/awesome-gamedev-agent-skills.git
+[submodule "tools/agent-sources/claude-gamedev-kit"]
+	path = tools/agent-sources/claude-gamedev-kit
+	url = https://github.com/dudwns0921/claude-gamedev-kit.git
+[submodule "tools/agent-sources/dream-loop"]
+	path = tools/agent-sources/dream-loop
+	url = https://github.com/achimala/dream-loop.git
+[submodule "tools/agent-sources/plinkfx"]
+	path = tools/agent-sources/plinkfx
+	url = https://github.com/maximilianfeix/plinkfx.git
