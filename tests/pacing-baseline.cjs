@@ -17,14 +17,16 @@ const {p,buttons,zoneLimit,update,setAuto,setMode}=context.__test;
 // Fresh save, natural update loop, automatic movement and affordable permanent crafting only.
 setAuto(true);setMode(policy);
 const milestones=new Set([300,900,1800,3600]);
+const bossFirstClear={};
 for(let tick=1;tick<=36000;tick++){
  update(.1);
+ if(policy==='auto')for(const id of p.bossKills)if(bossFirstClear[id]===undefined)bossFirstClear[id]=tick/10;
  if(tick%10===0){
   for(const b of buttons)if(!['enhancementStone','protectionStone'].includes(b.id)&&b.show()&&b.enabled())b.act();
   const time=tick/10;
   if(milestones.has(time)){
    if(policy==='auto'&&time===300){
-    assert.ok(p.bossKills.includes('boss1'),'goal-directed auto should unlock the mine within five simulated minutes');
+    assert.ok(p.bossKills.includes('boss0'),'goal-directed auto should clear the first boss within five simulated minutes');
     assert.ok(p.iron>=0,'mine resources remain nonnegative');
    }
    if(policy==='auto'&&time===3600){
@@ -32,6 +34,10 @@ for(let tick=1;tick<=36000;tick++){
     assert.equal(p.relicBlade,true,'goal-directed auto should complete the guardian blade');
     assert.ok(p.wood<500&&p.stone<500&&p.iron<100,'completed goals should stop unneeded resource accumulation');
     assert.ok(p.kills<500,'completed goals should not cause endless automatic kill farming');
+    assert.ok(bossFirstClear.boss0>=30,'first boss should require preparation');
+    assert.ok(bossFirstClear.boss1>bossFirstClear.boss0,'second boss must follow the first');
+    assert.ok(bossFirstClear.boss2>bossFirstClear.boss1,'third boss must follow the second');
+    console.log('P3 boss first clears '+JSON.stringify(bossFirstClear));
    }
    assert.ok([p.x,p.y,p.atk,p.def,p.hp,p.gold].every(Number.isFinite));
    assert.ok([p.wood,p.stone,p.iron,p.gold].every(n=>n>=0));
