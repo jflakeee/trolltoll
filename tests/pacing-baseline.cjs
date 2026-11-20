@@ -30,6 +30,8 @@ for(let tick=1;tick<=36000;tick++){
    if(policy==='auto'&&time===3600){
     assert.ok(p.bossKills.includes('boss2'),'goal-directed auto should eventually clear the third boss');
     assert.equal(p.relicBlade,true,'goal-directed auto should complete the guardian blade');
+    assert.ok(p.wood<500&&p.stone<500&&p.iron<100,'completed goals should stop unneeded resource accumulation');
+    assert.ok(p.kills<500,'completed goals should not cause endless automatic kill farming');
    }
    assert.ok([p.x,p.y,p.atk,p.def,p.hp,p.gold].every(Number.isFinite));
    assert.ok([p.wood,p.stone,p.iron,p.gold].every(n=>n>=0));
