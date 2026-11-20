@@ -84,3 +84,17 @@ CI run 44629123621, commit b41a5da88aa00576c38b197c0f8ddee51c2ec69d, seed 123456
 |60|120|20|21|13|415|360|997|881|0|1|
 
 Observed stagnation: ATK/DEF flat after minute 5; boss1 never defeated; no iron; excessive wood/stone accumulation. Nearest-target selection is a candidate cause, not yet proven. Compare combat-priority and goal-directed policies over identical seeds before changing gameplay. Single-seed VM simulation is not physical-device play or a human pacing measurement. Both deployment and mobile Chromium workflows passed for the baseline commit.
+
+### P3-01A same-seed mode comparison (measured)
+
+CI run 44629457693 and mobile Chromium run 44629457642 passed on dffb26166ce6ad715480e847ee894d96412674c4. Each mode ran 3,600 simulated seconds with the same deterministic random seed, automatic movement, affordable permanent crafting and no enhancements.
+
+| Mode | Kills | Level | ATK | DEF | Max HP | Gold | Wood | Stone | Iron | Boss clears |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Auto | 120 | 20 | 21 | 13 | 415 | 360 | 997 | 881 | 0 | 1 |
+| Combat priority | 5,093 | 63 | 1,502 | 2,154 | 3,226 | 15,279 | 0 | 0 | 0 | 1 |
+| Gather priority | 183 | 7 | 16 | 9 | 484 | 549 | 1,636 | 1,413 | 0 | 0 |
+
+The combat mode's kill rate is 42.4 times the default auto mode, but neither clears boss1; gather mode clears no bosses. This is evidence of an objective-selection/progression problem, not proof of a single root cause. The current autoMoveTarget() uses nearest available target within the unlocked zone (with 65-unit target stickiness); combat and gather modes filter the same pool by kind, but no policy explicitly prioritizes the next uncleared boss, unmet recipe ingredients or advancing to a new region.
+
+**Candidate P3-01B behavior, not implemented:** (1) prioritize reachable, uncleared boss only after a readiness threshold is met; (2) collect only ingredients missing for the next progression recipe, with hysteresis to prevent target thrashing; (3) switch to combat for stats/XP when blocked on strength; (4) retain explicit player-selected combat/gather modes and manual control precedence; (5) never target locked-region resources. Compare multiple seeds and record boss clear times, death frequency, resource surplus and saves before any gameplay change. Preserve v3 save schema and existing UI control meanings.
