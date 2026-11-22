@@ -10,6 +10,8 @@ assert.strictEqual(duration({i:31}),1.1);
 assert.strictEqual(duration({i:32}),0.9);
 assert.strictEqual(duration({i:33}),0.7);
 assert.match(source,/회피 성공!/,'successful boss slam evasion must give feedback');
+assert.match(source,/const heal=Math\.min\(4,Math\.max\(0,p\.max-p\.hp\)\)/,'boss dodge healing must be capped by missing HP');
+assert.match(source,/p\.gold\+=2;burst\(p\.x,p\.y/,'boss dodge reward should include gold and a visible burst');
 const warningLabel=vm.runInNewContext(source.slice(source.indexOf('function bossWarningLabel('),source.indexOf('function dist('))+';bossWarningLabel');
 const edgeLabel=warningLabel(-50,30,360,640,null);
 assert.ok(edgeLabel.x>=116&&edgeLabel.y>=78,'boss warning text should stay inside narrow viewport');
