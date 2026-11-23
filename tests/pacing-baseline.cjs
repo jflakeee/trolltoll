@@ -11,7 +11,7 @@ assert.strictEqual(duration({i:32}),0.9);
 assert.strictEqual(duration({i:33}),0.7);
 assert.match(source,/회피 성공!/,'successful boss slam evasion must give feedback');
 assert.match(source,/const heal=Math\.min\(4,Math\.max\(0,p\.max-p\.hp\)\)/,'boss dodge healing must be capped by missing HP');
-assert.match(source,/p\.gold\+=2;burst\(p\.x,p\.y/,'boss dodge reward should include gold and a visible burst');
+assert.match(source,/p\.gold\+=2;e\.dodgeRewardCooldown=12;burst\(p\.x,p\.y/,'boss dodge reward should include gold and a visible burst');
 assert.match(source,/e\.warningStartX=p\.x;e\.warningStartY=p\.y/,'boss dodge must remember warning start position');
 assert.match(source,/moved>=20&&\(e\.dodgeRewardCooldown\|\|0\)<=0/,'boss reward requires actual movement and expired cooldown');
 assert.match(source,/e\.dodgeRewardCooldown=12/,'boss reward cooldown must limit farming');
